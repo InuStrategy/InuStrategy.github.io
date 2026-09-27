@@ -1,0 +1,9 @@
+node_modules/
+.env
+.env.*
+!.env.example
+site/.openai/
+site/.sites-runtime/
+site/dist/data/snapshot.tmp
+*.tar.gz
+*.zip

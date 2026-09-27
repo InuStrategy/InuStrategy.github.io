@@ -1,0 +1,12 @@
+{
+  "name": "InuStrategy",
+  "symbol": "INUSTRATEGY",
+  "announcement": {"text": "InuStrategy is committed to developing a world-class strategy for doing absolutely nothing.", "linkText": "Read the strategy ↗"},
+  "chain": "solana",
+  "rpcUrl": "https://api.mainnet-beta.solana.com",
+  "tokenAddress": "",
+  "tokenDataUrl": "",
+  "pollIntervalMs": 30000,
+  "links": {"buy": "", "explorer": "", "x": "", "community": ""},
+  "fee": {"enabled": true, "recipientAddress": "", "recipientName": "Saylor", "indexerUrl": "", "sourceAddresses": [], "otherAssets": [], "includeNative": false, "explorerAddressUrl": "", "explorerTransactionUrl": ""}
+}

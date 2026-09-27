@@ -1,0 +1,1 @@
+{"name":"inustrategy","private":true,"type":"module","scripts":{"start":"node server.mjs","build":"node scripts/build-data.mjs","test":"node --test --test-isolation=none tests/*.test.mjs","check":"node --check dist/app.js && node --check backend/providers.js && node --check scripts/build-data.mjs"}}

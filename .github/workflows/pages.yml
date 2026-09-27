@@ -1,0 +1,57 @@
+name: Publish InuStrategy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+  schedule:
+    - cron: '*/5 * * * *'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Validate frontend and accounting
+        working-directory: site
+        run: |
+          npm run check
+          npm test
+      - name: Generate read-only blockchain snapshot
+        working-directory: site
+        env:
+          SOLANA_RPC_URL: ${{ secrets.SOLANA_RPC_URL }}
+          TOKEN_DATA_URL: ${{ secrets.TOKEN_DATA_URL }}
+          FEE_INDEXER_URL: ${{ secrets.FEE_INDEXER_URL }}
+          TOKEN_CA: ${{ vars.TOKEN_CA }}
+          FEE_RECIPIENT: ${{ vars.FEE_RECIPIENT }}
+          FEE_SOURCES: ${{ vars.FEE_SOURCES }}
+        run: npm run build
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: site/dist
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy homepage
+        id: deployment
+        uses: actions/deploy-pages@v4
