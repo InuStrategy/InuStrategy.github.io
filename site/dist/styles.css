@@ -8,4 +8,9 @@
 @media(max-width:1050px){.primary-metric>strong{font-size:33px}.primary-metric:first-child>strong{font-size:29px}.metric strong{font-size:32px}.metric-label{font-size:14px}}
 @media(max-width:550px){.primary-metric .metric-label{font-size:12px}.primary-metric>strong,.primary-metric:first-child>strong{font-size:28px}.metric-label{font-size:13px}.metric strong{font-size:30px}.meme-grid .metric strong{font-size:26px}.metric-note{font-size:11px}.fee-total>div{font-size:42px}}
 @media(max-width:350px){.metric strong{font-size:27px}.meme-grid .metric strong{font-size:23px}.primary-metric .metric-label{font-size:11px}}
+.brand-logo{display:flex;align-items:center;flex-shrink:0;line-height:0;letter-spacing:0}.brand-logo img{display:block;width:200px;height:auto;max-width:100%;object-fit:contain}.header-logo{width:200px;height:58px}.footer-logo{width:180px;height:48px}.footer-logo img{width:180px}.brand-logo .logo-on-light{display:none}[data-theme=light] .brand-logo .logo-on-dark{display:none}[data-theme=light] .brand-logo .logo-on-light{display:block}
+@media(max-width:550px){.header-logo{width:155px;height:57px}.header-logo img{width:155px}.footer-logo{width:165px}.footer-logo img{width:165px}}
+@media(max-width:350px){.header-logo,.header-logo img{width:140px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{animation:none!important;transition:none!important}}
+
+.theme-toggle{width:36px;height:36px;padding:0;justify-content:center;flex-shrink:0}#theme-icon{font-family:Arial,Helvetica,sans-serif;font-size:23px;line-height:1}

@@ -17,7 +17,7 @@ token.metrics={trades24h:trades,buySellRatio:sells>0&&buys!=null?buys/sells:null
 const links={};for(const key of ['buy','explorer','x']){const value=config.links[key];links[key]=typeof value==='string'&&value.startsWith('https://')?value:'';}
 if(!links.explorer&&config.tokenAddress)links.explorer='https://solscan.io/token/'+encodeURIComponent(config.tokenAddress);
 // Explicit public-field allowlist. RPC/indexer URLs and environment secrets are never published.
-const publicConfig={name:config.name,symbol:config.symbol,chain:config.chain,tokenAddress:config.tokenAddress,links,announcement:config.announcement,fee:{enabled:config.fee.enabled,recipientAddress:config.fee.recipientAddress,recipientName:config.fee.recipientName,explorerAddressUrl:config.fee.explorerAddressUrl}};
+const publicConfig={name:config.name,symbol:config.symbol,chain:config.chain,tokenAddress:config.tokenAddress,links,announcement:config.announcement,fee:{enabled:config.fee.enabled,recipientAddress:config.fee.recipientAddress,recipientName:config.fee.recipientName,displayLabel:config.fee.displayLabel,explorerAddressUrl:config.fee.explorerAddressUrl}};
 // Only the recent normalized fee records are needed by the UI. Lifetime accounting ran above.
 fees.transactions=fees.transactions.slice(0,5).map(({timestamp,amount,asset,usdValue,txHash})=>({timestamp,amount,asset,usdValue,txHash}));
 if(fees.lastTransaction){const {timestamp,amount,asset,usdValue,txHash}=fees.lastTransaction;fees.lastTransaction={timestamp,amount,asset,usdValue,txHash};}
