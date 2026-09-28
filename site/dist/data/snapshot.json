@@ -3,7 +3,7 @@
   "generatedAt": "2026-09-27T03:56:20.404Z",
   "config": {
     "name": "InuStrategy",
-    "symbol": "INUSTRATEGY",
+    "symbol": "INSTR",
     "chain": "solana",
     "tokenAddress": "",
     "links": {
