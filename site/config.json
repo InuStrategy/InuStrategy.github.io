@@ -2,8 +2,7 @@
   "name": "InuStrategy",
   "symbol": "INUSTRATEGY",
   "announcement": {
-    "text": "InuStrategy is committed to developing a world-class strategy for doing absolutely nothing.",
-    "linkText": "Read the strategy \u2197"
+    "text": "InuStrategy is committed to developing a world-class strategy for doing absolutely nothing."
   },
   "chain": "solana",
   "rpcUrl": "https://api.mainnet-beta.solana.com",

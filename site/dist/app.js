@@ -63,6 +63,6 @@ async function refresh(){if(polling||document.hidden)return;polling=true;try{
  // Suppress old prices and fee totals. Do not present a stale snapshot as live.
  if(stale&&snapshot.token.status!=='prelaunch'){snapshot.token.status='error';for(const key of ['price','marketCap','liquidity','volume24h','holders','totalSupply','priceChange24h','return7d','return30d'])snapshot.token[key]=null;snapshot.token.metrics={};snapshot.token.activity={};snapshot.token.history=[];}
  if(stale&&snapshot.fees.status!=='pending'){snapshot.fees={...snapshot.fees,status:'error',totalUsdValue:null,transactionCount:null,fees24h:null,fees7d:null,transactions:[],assetTotals:[],lastTransaction:null,note:'The published fee snapshot is stale. Totals are hidden until the next verified update.'};}
- text('#announcement',config.announcement.text);text('#announcement-link',config.announcement.linkText);$('#announcement-link').href='#info';renderFees(snapshot.fees);renderToken(snapshot.token);
+ text('#announcement',config.announcement.text);renderFees(snapshot.fees);renderToken(snapshot.token);
  }catch{if(!token)toast('Dashboard data is temporarily unavailable. Retrying automatically.');else{text('#data-status','DATA UNAVAILABLE');text('#data-caption','Could not refresh. Last published snapshot remains visible; check its timestamp.');}}finally{polling=false;}}
 await refresh();setInterval(refresh,30000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)refresh();});
