@@ -99,3 +99,6 @@ The worker requests `TOKEN_DATA_URL?mint=<mint>`. Return the matching `mint` and
 ## Verification
 
 Accounting tests cover historical USD values, missing prices, duplicate instructions, multi-asset totals, rolling windows, changed recipients, source filtering, failed/unfinalized transactions, pre-launch states, mint validation and incomplete histories. The page is checked at desktop and mobile widths, in both themes, including theme persistence, navigation, chart-range controls and unconfigured links. Live-chain end-to-end validation requires the official mint, recipient, fee sources and provider configuration.
+
+### Solscan holders
+Set the GitHub Actions repository secret `SOLSCAN_API_KEY` to a Solscan Pro API key with access to `/v2.0/token/holders`. Both production and test builds read the key on the build worker only. The public snapshot contains only the reported aggregate count, source, status and timestamp; the key is excluded. Missing credentials or failed requests leave holder counts unknown while preserving DEX market data. Counts use Solscan data.total, not the length of its paginated list. This does not change the existing five-minute snapshot schedule. After adding the secret, run Publish InuStrategy manually to verify live access.

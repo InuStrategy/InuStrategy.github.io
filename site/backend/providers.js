@@ -14,20 +14,32 @@ export function normalizeToken(input){
  result.history=(Array.isArray(input.history)?input.history:[]).filter(x=>Number.isFinite(x.timestamp)&&x.timestamp<=Date.now()&&positive(x.price)!==null).map(x=>({timestamp:x.timestamp,price:positive(x.price),volume:positive(x.volume)})).sort((a,b)=>a.timestamp-b.timestamp);
  result.status='live';result.source=typeof input.source==='string'?input.source:'Configured data provider';result.updatedAt=Date.now();return result;
 }
+export async function enrichHolders(data,config){
+ if(!config.solscanApiKey){data.holdersStatus='not-configured';return data;}
+ try{
+ const endpoint=new URL('https://pro-api.solscan.io/v2.0/token/holders');
+ endpoint.searchParams.set('address',config.tokenAddress);endpoint.searchParams.set('page','1');endpoint.searchParams.set('page_size','10');
+ const result=await json(endpoint,{headers:{token:config.solscanApiKey,accept:'application/json'}});
+ const count=result.data?.total;
+ if(result.success!==true||!Number.isSafeInteger(count)||count<0)throw new Error('Invalid holder count');
+ data.holders=count;data.holdersSource='Solscan';data.holdersUpdatedAt=Date.now();data.holdersStatus='live';
+ }catch{data.holdersStatus='unavailable';}
+ return data;
+}
 export class TokenProvider{
  constructor(config){this.config=config;}
  async get(){const c=this.config;if(!c.tokenAddress)return structuredClone(EMPTY_TOKEN);try{
    if(!isAddress(c.tokenAddress))throw new Error('Invalid mint');
    const mint=await rpc(c,'getAccountInfo',[c.tokenAddress,{encoding:'jsonParsed',commitment:'finalized'}]);
    if(!mint?.value||!['TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA','TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb'].includes(mint.value.owner)||mint.value.data?.parsed?.type!=='mint')throw new Error('Configured address is not a Solana mint');
-   if(c.tokenDataUrl){const endpoint=new URL(c.tokenDataUrl);endpoint.searchParams.set('mint',c.tokenAddress);const data=await json(endpoint);if(data.mint!==c.tokenAddress)throw new Error('Mint mismatch');return normalizeToken(data);}
+   if(c.tokenDataUrl){const endpoint=new URL(c.tokenDataUrl);endpoint.searchParams.set('mint',c.tokenAddress);const data=await json(endpoint);if(data.mint!==c.tokenAddress)throw new Error('Mint mismatch');return enrichHolders(normalizeToken(data),c);}
    const pairs=await json('https://api.dexscreener.com/token-pairs/v1/solana/'+encodeURIComponent(c.tokenAddress));
    const pair=pairs.filter(p=>p.chainId==='solana'&&p.baseToken.address===c.tokenAddress).sort((a,b)=>(b.liquidity?.usd||0)-(a.liquidity?.usd||0))[0];
    if(!pair)return structuredClone(EMPTY_TOKEN);
    const data=normalizeToken({price:pair.priceUsd,priceChange24h:pair.priceChange?.h24,marketCap:pair.marketCap,liquidity:pair.liquidity?.usd,volume24h:pair.volume?.h24,activity:{buys:pair.txns?.h24?.buys,sells:pair.txns?.h24?.sells},source:'DEX Screener · highest-liquidity pool'});
    // Supply is optional: an unavailable RPC must not discard valid market data.
    try{const supply=await rpc(c,'getTokenSupply',[c.tokenAddress,{commitment:'finalized'}]);data.totalSupply=positive(supply.value.uiAmountString);}catch{}
-   return data;
+   return enrichHolders(data,c);
  }catch{return {...structuredClone(EMPTY_TOKEN),status:'error'};}}
 }
 const emptyFees = (c,status='pending',note='') => ({status,recipientAddress:c.fee.recipientAddress,recipientName:c.fee.recipientName,totalTokenFees:null,totalUsdValue:null,transactionCount:null,fees24h:null,fees7d:null,fees30d:null,transactions:[],assetTotals:[],lastTransaction:null,note});
