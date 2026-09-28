@@ -1,3 +1,4 @@
+import {enrichHistory} from '../backend/history.js';
 import {readFile,writeFile,mkdir,rename} from 'node:fs/promises';
 import {TokenProvider,FeeProvider} from '../backend/providers.js';
 const config=JSON.parse(await readFile(new URL('../config.json',import.meta.url),'utf8'));
@@ -11,6 +12,7 @@ config.fee.recipientAddress=process.env.FEE_RECIPIENT||config.fee.recipientAddre
 if(process.env.FEE_SOURCES)config.fee.sourceAddresses=process.env.FEE_SOURCES.split(',').map(x=>x.trim()).filter(Boolean);
 for(const endpoint of [config.rpcUrl,config.tokenDataUrl,config.fee.indexerUrl].filter(Boolean)){if(new URL(endpoint).protocol!=='https:')throw new Error('Provider endpoints must use HTTPS');}
 const [token,fees]=await Promise.all([new TokenProvider(config).get(),new FeeProvider(config).get()]);
+await enrichHistory(token,config.tokenAddress);
 // These calculations run on the trusted build worker, never from browser input.
 const buys=token.activity.buys,sells=token.activity.sells;
 const trades=buys!=null&&sells!=null?buys+sells:null;

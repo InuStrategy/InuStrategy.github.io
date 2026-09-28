@@ -105,3 +105,6 @@ Set the GitHub Actions repository secret `SOLSCAN_API_KEY` to a Solscan Pro API 
 
 ### Free Pump.fun holder feed
 The configured holderProvider is now pumpfun. The backend reads totalHolders from the public advanced-api-v2.pump.fun/coins/top-holders/{mint} response, never counts the topHolders list as the total. No API key is sent. This undocumented endpoint was tested on 2026-09-28; availability and definitions may change. Invalid or failed responses leave the count unknown. Solscan remains optional when holderProvider is not pumpfun.
+
+### Free chart history
+GeckoTerminal candles are fetched on the existing five-minute build schedule. Short views (1H/6H/12H) use one-minute closes; 1D uses 15-minute closes; 7D/30D use hourly closes; 3M/ALL use daily closes (up to 180 available candles). ALL means available provider history, not guaranteed lifetime history. Pool selection validates base mint and chooses highest reported liquidity. Missing ranges stay empty and old snapshots are suppressed. The frontend checks snapshots every 30 seconds; this is not streaming.
