@@ -3,7 +3,7 @@ export const EMPTY_TOKEN = {status:'prelaunch',price:null,priceChange24h:null,re
 const num = x => x!==null && x!==undefined && x!=='' && Number.isFinite(Number(x)) ? Number(x) : null;
 const positive = x => {const n=num(x);return n!=null&&n>=0?n:null;};
 const isAddress = x => typeof x==='string'&&/^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(x);
-async function json(url,options={}){const r=await fetch(url,{...options,signal:AbortSignal.timeout(15000),cache:'no-store'});if(!r.ok)throw new Error('Data request failed');return r.json();}
+async function json(url,options={}){const r=await fetch(url,{...options,signal:AbortSignal.timeout(15000),cache:'no-store'});if(!r.ok){const error=new Error('Data request failed');error.status=r.status;throw error;}return r.json();}
 export async function rpc(config,method,params){const result=await json(config.rpcUrl,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jsonrpc:'2.0',id:1,method,params})});if(result.error||!('result' in result))throw new Error('Solana RPC unavailable');return result.result;}
 export function normalizeToken(input){
  const result=structuredClone(EMPTY_TOKEN);
@@ -23,7 +23,7 @@ export async function enrichHolders(data,config){
  const count=result.data?.total;
  if(result.success!==true||!Number.isSafeInteger(count)||count<0)throw new Error('Invalid holder count');
  data.holders=count;data.holdersSource='Solscan';data.holdersUpdatedAt=Date.now();data.holdersStatus='live';
- }catch{data.holdersStatus='unavailable';}
+ }catch(error){data.holdersStatus='unavailable';console.warn('Solscan holder lookup failed:',Number.isInteger(error.status)?'HTTP '+error.status:'invalid response or connection failure');}
  return data;
 }
 export class TokenProvider{
