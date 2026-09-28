@@ -26,5 +26,6 @@
     "explorerAddressUrl": "",
     "explorerTransactionUrl": "",
     "displayLabel": "Fees sent to Michael Saylor via @UsePaid"
-  }
+  },
+  "holderProvider": "pumpfun"
 }

@@ -15,6 +15,15 @@ export function normalizeToken(input){
  result.status='live';result.source=typeof input.source==='string'?input.source:'Configured data provider';result.updatedAt=Date.now();return result;
 }
 export async function enrichHolders(data,config){
+ if(config.holderProvider==='pumpfun'){
+ try{
+ const result=await json('https://advanced-api-v2.pump.fun/coins/top-holders/'+encodeURIComponent(config.tokenAddress));
+ if(!Array.isArray(result.topHolders)||!Number.isSafeInteger(result.totalHolders)||result.totalHolders<result.topHolders.length)throw new Error('Invalid holder count');
+ data.holders=result.totalHolders;data.holdersSource='Pump.fun';data.holdersUpdatedAt=Date.now();data.holdersStatus='live';
+ }catch{data.holdersStatus='unavailable';}
+ return data;
+ }
+
  if(!config.solscanApiKey){data.holdersStatus='not-configured';return data;}
  try{
  const endpoint=new URL('https://pro-api.solscan.io/v2.0/token/holders');

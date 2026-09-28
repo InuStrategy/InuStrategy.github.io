@@ -102,3 +102,6 @@ Accounting tests cover historical USD values, missing prices, duplicate instruct
 
 ### Solscan holders
 Set the GitHub Actions repository secret `SOLSCAN_API_KEY` to a Solscan Pro API key with access to `/v2.0/token/holders`. Both production and test builds read the key on the build worker only. The public snapshot contains only the reported aggregate count, source, status and timestamp; the key is excluded. Missing credentials or failed requests leave holder counts unknown while preserving DEX market data. Counts use Solscan data.total, not the length of its paginated list. This does not change the existing five-minute snapshot schedule. After adding the secret, run Publish InuStrategy manually to verify live access.
+
+### Free Pump.fun holder feed
+The configured holderProvider is now pumpfun. The backend reads totalHolders from the public advanced-api-v2.pump.fun/coins/top-holders/{mint} response, never counts the topHolders list as the total. No API key is sent. This undocumented endpoint was tested on 2026-09-28; availability and definitions may change. Invalid or failed responses leave the count unknown. Solscan remains optional when holderProvider is not pumpfun.
