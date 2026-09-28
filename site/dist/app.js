@@ -5,6 +5,16 @@ const money = v => v == null ? '—' : '$'+compact(v);
 const pct = v => v == null ? '—' : (v>0?'+':'')+v.toFixed(2)+'%';
 const price = v => v == null ? '—' : '$' + v.toLocaleString('en-US',{minimumFractionDigits:6,maximumFractionDigits:10});
 const text = (selector,value) => {$(selector).textContent=value;};
+const simulation=new URLSearchParams(location.search).get('mode')==='test';
+if(simulation){
+ text('#announcement','SIMULATION · Live e/acc test-token data · Not $INSTR market data');
+ text('.dashboard-heading h1','e/acc · Test simulation');
+ text('.primary-metric .metric-label .orange','$e/acc');
+ text('#performance h2','$e/acc Performance · Test');
+ document.querySelectorAll('[data-link=buy]').forEach(el=>{el.disabled=true;el.textContent='Test mode';});
+ const exit=document.createElement('a');exit.href='index.html';exit.textContent='Exit simulation ↗';$('.announcement .wrap').append(' ',exit);
+ $('#fees').hidden=true;
+}
 let config,token,fees,range='30D',chartPoints=[],hovered=-1,lastFeeId=null,lastRecipient=null,polling=false;
 const days={'1D':1,'7D':7,'30D':30,'3M':90,'ALL':Infinity};
 const labels={'1D':'Last 24 hours','7D':'Last 7 days','30D':'Last 30 days','3M':'Last 3 months','ALL':'All available history'};
@@ -25,7 +35,8 @@ function renderToken(data){
  text('#data-status',data.status==='live'?'MARKET DATA':data.status==='error'?'DATA UNAVAILABLE':'TOKEN LAUNCHING SOON');$('#data-status').classList.toggle('live',data.status==='live');
  text('#data-caption',data.status==='live'?`As of ${new Date(data.updatedAt).toLocaleString()} · ${data.source}`:data.status==='error'?'Market data is temporarily unavailable. Waiting for the next verified update.':'Market data will appear after launch. Unavailable metrics are shown as —.');
  const d=data.metrics||{};
- const rows=[['Holders',compact(data.holders),'On-chain holders'],['24H Return',pct(data.priceChange24h),'Price change · 24 hours',data.priceChange24h],['7D Return',pct(data.return7d),'Price change · 7 days',data.return7d],['30D Return',pct(data.return30d),'Price change · 30 days',data.return30d],['Trades 24H',compact(d.trades24h),'Tracked trading pool'],['Buys 24H',compact(data.activity.buys),'Tracked trading pool'],['Sells 24H',compact(data.activity.sells),'Tracked trading pool'],['Buy / Sell Ratio',d.buySellRatio==null?'—':d.buySellRatio.toFixed(2)+'×','Trades · last 24 hours'],['Average Trade',money(d.averageTrade),'USD · tracked trading pool'],['Volume / Liquidity',d.volumeLiquidityRatio==null?'—':d.volumeLiquidityRatio.toFixed(2)+'×','24H volume / pool liquidity'],['Total Supply',compact(data.totalSupply),'INSTR tokens'],[config.fee.displayLabel||('Fees sent to '+config.fee.recipientName),money(fees?.totalUsdValue),'Lifetime · verified fees',null,true]];
+ const rows=[['Holders',compact(data.holders),'On-chain holders'],['24H Return',pct(data.priceChange24h),'Price change · 24 hours',data.priceChange24h],['7D Return',pct(data.return7d),'Price change · 7 days',data.return7d],['30D Return',pct(data.return30d),'Price change · 30 days',data.return30d],['Trades 24H',compact(d.trades24h),'Tracked trading pool'],['Buys 24H',compact(data.activity.buys),'Tracked trading pool'],['Sells 24H',compact(data.activity.sells),'Tracked trading pool'],['Buy / Sell Ratio',d.buySellRatio==null?'—':d.buySellRatio.toFixed(2)+'×','Trades · last 24 hours'],['Average Trade',money(d.averageTrade),'USD · tracked trading pool'],['Volume / Liquidity',d.volumeLiquidityRatio==null?'—':d.volumeLiquidityRatio.toFixed(2)+'×','24H volume / pool liquidity'],['Total Supply',compact(data.totalSupply),simulation?'e/acc test tokens':'INSTR tokens'],[config.fee.displayLabel||('Fees sent to '+config.fee.recipientName),money(fees?.totalUsdValue),'Lifetime · verified fees',null,true]];
+ if(simulation)rows.pop();
  $('#metrics').replaceChildren(...rows.map(x=>metric(...x)));drawChart();
 }
 function renderFees(data){
@@ -59,10 +70,20 @@ const observer=new IntersectionObserver(entries=>{entries.forEach(entry=>{if(ent
 async function refresh(){if(polling||document.hidden)return;polling=true;try{
  const response=await fetch('./data/snapshot.json',{cache:'no-store',signal:AbortSignal.timeout(15000)});if(!response.ok)throw new Error('Snapshot unavailable');const snapshot=await response.json();
  if(snapshot.schemaVersion!==1||!snapshot.config||!snapshot.token||!snapshot.fees)throw new Error('Invalid snapshot');
+ if(simulation){
+ const testResponse=await fetch('./data/test-token.json',{cache:'no-store',signal:AbortSignal.timeout(15000)});
+ if(!testResponse.ok)throw new Error('Test snapshot unavailable');
+ const test=await testResponse.json();
+ if(test.mint!=='CbcyNo7m1amFWqEQm2m4PLv1UNvpcL3C1Ujm6AkzpKoU'||!test.token)throw new Error('Invalid test snapshot');
+ snapshot.token=test.token;snapshot.generatedAt=test.generatedAt;
+ const t=snapshot.token;const buys=t.activity?.buys,sells=t.activity?.sells;
+ const trades=buys!=null&&sells!=null?buys+sells:null;
+ t.metrics={trades24h:trades,buySellRatio:sells>0&&buys!=null?buys/sells:null,averageTrade:trades>0&&t.volume24h!=null?t.volume24h/trades:null,volumeLiquidityRatio:t.liquidity>0&&t.volume24h!=null?t.volume24h/t.liquidity:null};
+ }
  config=snapshot.config;const generatedAt=Date.parse(snapshot.generatedAt);const stale=!Number.isFinite(generatedAt)||Date.now()-generatedAt>20*60000;
  // Suppress old prices and fee totals. Do not present a stale snapshot as live.
  if(stale&&snapshot.token.status!=='prelaunch'){snapshot.token.status='error';for(const key of ['price','marketCap','liquidity','volume24h','holders','totalSupply','priceChange24h','return7d','return30d'])snapshot.token[key]=null;snapshot.token.metrics={};snapshot.token.activity={};snapshot.token.history=[];}
  if(stale&&snapshot.fees.status!=='pending'){snapshot.fees={...snapshot.fees,status:'error',totalUsdValue:null,transactionCount:null,fees24h:null,fees7d:null,transactions:[],assetTotals:[],lastTransaction:null,note:'The published fee snapshot is stale. Totals are hidden until the next verified update.'};}
- text('#announcement',config.announcement.text);renderFees(snapshot.fees);renderToken(snapshot.token);
+ if(!simulation){text('#announcement',config.announcement.text);renderFees(snapshot.fees);}renderToken(snapshot.token);if(simulation){text('#data-status',snapshot.token.status==='live'?'TEST DATA':'TEST DATA UNAVAILABLE');text('#chart-empty strong','Historical data unavailable');text('#chart-empty>span:last-child','This test feed does not include price history.');}
  }catch{if(!token)toast('Dashboard data is temporarily unavailable. Retrying automatically.');else{text('#data-status','DATA UNAVAILABLE');text('#data-caption','Could not refresh. Last published snapshot remains visible; check its timestamp.');}}finally{polling=false;}}
 await refresh();setInterval(refresh,30000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)refresh();});

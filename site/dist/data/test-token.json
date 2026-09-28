@@ -1,26 +1,26 @@
 {
-  "generatedAt": "2026-09-27T20:20:54.959Z",
+  "generatedAt": "2026-09-28T01:43:55.722Z",
   "mint": "CbcyNo7m1amFWqEQm2m4PLv1UNvpcL3C1Ujm6AkzpKoU",
   "token": {
     "status": "live",
-    "price": 0.004586,
-    "priceChange24h": -77.12,
+    "price": 0.007704,
+    "priceChange24h": -28.03,
     "return7d": null,
     "return30d": null,
-    "marketCap": 4510388,
-    "liquidity": 323337.54,
-    "volume24h": 16071217.09,
+    "marketCap": 7576086,
+    "liquidity": 433395.24,
+    "volume24h": 18402167.27,
     "holders": null,
-    "totalSupply": 983392981.164909,
+    "totalSupply": 983392957.320174,
     "activity": {
       "transactions": null,
-      "buys": 45349,
-      "sells": 35202,
+      "buys": 49275,
+      "sells": 39958,
       "newHolders": null
     },
     "history": [],
     "source": "DEX Screener · highest-liquidity pool",
-    "updatedAt": 1790540454249
+    "updatedAt": 1790559833947
   },
   "feeProofSummary": "UsePaid proof endpoint returned HTTP 200. Routing status: confirmed; verified: no; proof attached: no. This does not establish any payout to the recipient."
 }
