@@ -1,24 +1,25 @@
 const TRACKED = ['marketCap','liquidity','volume24h'];
 const DAY = 86_400_000;
 
-const finiteNonnegative = value => Number.isFinite(Number(value)) && Number(value) >= 0 ? Number(value) : null;
+const finitePositive = value => value!==null&&value!==undefined&&value!==''&&Number.isFinite(Number(value))&&Number(value)>0?Number(value):null;
 
 export function appendMetricHistory(previous,current,now=Date.now()){
   const cutoff=now-8*DAY;
   const points=(Array.isArray(previous)?previous:[])
     .filter(point=>Number.isFinite(point?.timestamp)&&point.timestamp>=cutoff&&point.timestamp<=now)
-    .map(point=>({timestamp:point.timestamp,...Object.fromEntries(TRACKED.map(key=>[key,finiteNonnegative(point[key])]))}))
+    .map(point=>({timestamp:point.timestamp,...Object.fromEntries(TRACKED.map(key=>[key,finitePositive(point[key])]))}))
+    .filter(point=>TRACKED.some(key=>point[key]!==null))
     .sort((a,b)=>a.timestamp-b.timestamp);
-  const next={timestamp:now,...Object.fromEntries(TRACKED.map(key=>[key,finiteNonnegative(current?.[key])]))};
+  const next={timestamp:now,...Object.fromEntries(TRACKED.map(key=>[key,finitePositive(current?.[key])]))};
   if(TRACKED.some(key=>next[key]!==null))points.push(next);
   return points.filter((point,index,list)=>index===list.length-1||point.timestamp!==list[index+1].timestamp).slice(-2400);
 }
 
 export function metricChange(current,history,now=Date.now()){
-  const value=finiteNonnegative(current);
+  const value=finitePositive(current);
   if(value===null||!Array.isArray(history)||!history.length)return null;
   const target=now-DAY;
-  const eligible=history.filter(point=>Number.isFinite(point?.timestamp)&&point.timestamp<=target&&point.timestamp>=target-2*60*60*1000&&finiteNonnegative(point.value)!==null);
+  const eligible=history.filter(point=>Number.isFinite(point?.timestamp)&&point.timestamp<=target&&point.timestamp>=target-2*60*60*1000&&finitePositive(point.value)!==null);
   if(!eligible.length)return null;
   const baseline=eligible.at(-1).value;
   if(!(baseline>0))return null;

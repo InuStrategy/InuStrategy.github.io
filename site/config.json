@@ -16,16 +16,25 @@
     "community": ""
   },
   "fee": {
-    "enabled": true,
+    "enabled": false,
     "recipientAddress": "",
-    "recipientName": "Michael Saylor",
+    "recipientName": "",
     "indexerUrl": "",
     "sourceAddresses": [],
     "otherAssets": [],
     "includeNative": false,
     "explorerAddressUrl": "",
     "explorerTransactionUrl": "",
-    "displayLabel": "Fees sent to Michael Saylor via @UsePaid"
+    "displayLabel": ""
+  },
+  "distribution": {
+    "enabled": true,
+    "senderAddress": "",
+    "assetMint": "",
+    "assetSymbol": "USDC",
+    "indexerUrl": "",
+    "explorerAddressUrl": "",
+    "displayLabel": "Fees Distributed to Holders"
   },
   "holderProvider": "pumpfun"
 }

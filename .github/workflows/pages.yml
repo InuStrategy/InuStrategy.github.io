@@ -38,6 +38,10 @@ jobs:
           TOKEN_CA: ${{ vars.TOKEN_CA }}
           FEE_RECIPIENT: ${{ vars.FEE_RECIPIENT }}
           FEE_SOURCES: ${{ vars.FEE_SOURCES }}
+          DISTRIBUTION_WALLET: ${{ vars.DISTRIBUTION_WALLET }}
+          DISTRIBUTION_ASSET_MINT: ${{ vars.DISTRIBUTION_ASSET_MINT }}
+          DISTRIBUTION_ASSET_SYMBOL: ${{ vars.DISTRIBUTION_ASSET_SYMBOL }}
+          DISTRIBUTION_INDEXER_URL: ${{ secrets.DISTRIBUTION_INDEXER_URL }}
         run: |
           npm run build
           node scripts/test-token.mjs

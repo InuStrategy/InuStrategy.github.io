@@ -39,3 +39,29 @@ export interface FeeStats {
   fees30d: number | null;
   lastTransaction: (FeeTransfer & {usdValue: number | null; asset: string}) | null;
 }
+export interface DistributionTransfer {
+  txHash: string;
+  instructionIndex: number;
+  timestamp: number;
+  sender: string;
+  recipient: string;
+  mint: string;
+  amount: number;
+  finalized: boolean;
+  failed?: boolean;
+  priceBasis: 'historical' | 'unavailable';
+  historicalUsdPrice?: number;
+}
+export interface DistributionStats {
+  status: 'pending' | 'verified' | 'error';
+  senderAddress: string;
+  assetMint: string;
+  assetSymbol: string;
+  totalAmount: number | null;
+  totalUsdValue: number | null;
+  transactionCount: number | null;
+  uniqueRecipients: number | null;
+  distributed24h: number | null;
+  distributed7d: number | null;
+  topReceivers: {address: string; amount: number; usdValue: number | null; transfers: number; percentage: number | null}[];
+}

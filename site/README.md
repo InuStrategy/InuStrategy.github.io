@@ -1,6 +1,6 @@
 # InuStrategy
 
-A single-page Solana meme dashboard with a black default theme, a persistent light-mode toggle, an orange brand header, compact financial metrics, verified fee accounting, and clearly labeled meme statistics. Treasury and Tokenomics sections have been removed.
+A single-page Solana meme dashboard with a black default theme, a persistent light-mode toggle, an orange brand header, compact financial metrics, verified holder-distribution accounting, and clearly labeled meme statistics. Treasury and Tokenomics sections have been removed.
 
 ## Local preview
 
@@ -51,10 +51,20 @@ Edit `site/config.json`, or use these GitHub Actions values:
 | Repository secret | `SOLANA_RPC_URL` | Production HTTPS Solana RPC endpoint |
 | Repository secret | `TOKEN_DATA_URL` | Optional normalized market/history/holders provider |
 | Repository secret | `FEE_INDEXER_URL` | Complete finalized fee-history provider |
+| Repository variable | `DISTRIBUTION_WALLET` | Official wallet that sends holder payouts |
+| Repository variable | `DISTRIBUTION_ASSET_MINT` | Payout mint, or `SOL` for native SOL |
+| Repository variable | `DISTRIBUTION_ASSET_SYMBOL` | Public payout ticker such as `USDC` |
+| Repository secret | `DISTRIBUTION_INDEXER_URL` | Complete finalized outgoing-transfer provider |
 
 The public Solana RPC endpoint is a development fallback and can throttle or reject requests. Use a reliable production RPC. Set official HTTPS buy, explorer and X links in `config.json`. Unconfigured actions explain availability. Announcement text and the fee-recipient display name are also configurable there. Never commit private provider credentials to config.
 
 After the mint is configured, DEX Screener supplies market price, market cap, liquidity, volume, buys and sells for the highest-liquidity base-token pool. Pool-specific metrics are labeled. FDV is never substituted for market cap. Holder counts, historical candles, 7D/30D returns and other unavailable metrics remain `—` until a normalized provider is connected. A missing source never turns into a made-up number.
+
+## Holder distributions
+
+The Fees tab tracks finalized outgoing payouts from one configured distribution wallet and one payout asset. It shows total historical USD value, 24-hour distributions, payout count, unique recipients, recent transfers and the Top 10 receivers by raw asset amount. Self-transfers, failed transactions, wrong senders, wrong mints, duplicates and future timestamps are excluded. USD totals use historical prices and are withheld when pricing is incomplete.
+
+The worker requests `DISTRIBUTION_INDEXER_URL?sender=<wallet>&mint=<mint>`. The response must contain the same `sender` and `mint`, `completeHistory: true`, `commitment: "finalized"`, and a `transfers` array. Each transfer contains `txHash`, `instructionIndex`, `timestamp`, `sender`, `recipient`, `mint`, `amount`, `finalized`, optional `failed`, `priceBasis`, and optional `historicalUsdPrice`. Until the official wallet, asset and complete history provider are configured, the public section remains in an explicit pending state.
 
 ## Fee accounting
 

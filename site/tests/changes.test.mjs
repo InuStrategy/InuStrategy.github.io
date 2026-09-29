@@ -13,6 +13,10 @@ test('metric history keeps valid recent observations and appends the current sna
  assert.deepEqual(history.at(-1),{timestamp:now,marketCap:330,liquidity:125,volume24h:250});
 });
 
+test('metric history does not turn unavailable values into measured zeroes',()=>{
+ assert.deepEqual(appendMetricHistory([{timestamp:Date.now()-1000,liquidity:null}],{marketCap:null,liquidity:null,volume24h:null}),[]);
+});
+
 test('24 hour changes require a real baseline and calculate signed amount and percent',()=>{
  const now=2*86_400_000;
  assert.deepEqual(metricChange(125,[{timestamp:now-86_400_000,value:100}],now),{amount:25,percent:25,baseline:100});

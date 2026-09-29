@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-27T03:56:20.404Z",
+  "generatedAt": "2026-09-29T20:15:44.260Z",
   "config": {
     "name": "InuStrategy",
     "symbol": "INSTR",
@@ -9,16 +9,24 @@
     "links": {
       "buy": "",
       "explorer": "",
-      "x": ""
+      "x": "https://x.com/InuStrategy"
     },
     "announcement": {
       "text": "InuStrategy is committed to developing a world-class strategy for doing absolutely nothing."
     },
     "fee": {
-      "enabled": true,
+      "enabled": false,
       "recipientAddress": "",
-      "recipientName": "Michael Saylor",
-      "displayLabel": "Fees sent to Michael Saylor via @UsePaid",
+      "recipientName": "",
+      "displayLabel": "",
+      "explorerAddressUrl": ""
+    },
+    "distribution": {
+      "enabled": true,
+      "senderAddress": "",
+      "assetMint": "",
+      "assetSymbol": "USDC",
+      "displayLabel": "Fees Distributed to Holders",
       "explorerAddressUrl": ""
     }
   },
@@ -32,6 +40,8 @@
     "liquidity": null,
     "volume24h": null,
     "holders": null,
+    "topHolders": [],
+    "topHoldersStatus": "unavailable",
     "totalSupply": null,
     "activity": {
       "transactions": null,
@@ -42,6 +52,13 @@
     "history": [],
     "source": "",
     "updatedAt": null,
+    "metricHistory": [],
+    "metricChanges24h": {
+      "marketCap": null,
+      "liquidity": null,
+      "volume24h": null,
+      "price": null
+    },
     "metrics": {
       "trades24h": null,
       "buySellRatio": null,
@@ -52,7 +69,7 @@
   "fees": {
     "status": "pending",
     "recipientAddress": "",
-    "recipientName": "Michael Saylor",
+    "recipientName": "",
     "totalTokenFees": null,
     "totalUsdValue": null,
     "transactionCount": null,
@@ -63,5 +80,21 @@
     "assetTotals": [],
     "lastTransaction": null,
     "note": ""
+  },
+  "distributions": {
+    "status": "pending",
+    "senderAddress": "",
+    "assetMint": "",
+    "assetSymbol": "USDC",
+    "totalAmount": null,
+    "totalUsdValue": null,
+    "transactionCount": null,
+    "uniqueRecipients": null,
+    "distributed24h": null,
+    "distributed7d": null,
+    "transactions": [],
+    "topReceivers": [],
+    "lastDistribution": null,
+    "note": "Awaiting the official distribution wallet and payout asset."
   }
 }
