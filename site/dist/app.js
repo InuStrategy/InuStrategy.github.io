@@ -10,7 +10,7 @@ const text = (selector,value) => {$(selector).textContent=value;};
 const simulation=new URLSearchParams(location.search).get('mode')==='test';
 if(simulation){
  text('.dashboard-heading h1','e/acc · Test simulation');
- text('.primary-metric .metric-label .orange','$e/acc');
+ text('.primary-metric .token-code','e/acc');
  text('#performance h2','$e/acc Performance · Test');
  document.querySelectorAll('[data-link=buy]').forEach(el=>{el.disabled=true;el.textContent='Test mode';});
  text('#fee-note','Test mode: no verified recipient payouts are supplied by this market-data feed.');
