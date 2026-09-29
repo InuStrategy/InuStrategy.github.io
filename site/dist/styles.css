@@ -26,5 +26,5 @@
 .holder-table{margin-top:26px}.holder-table table{width:100%}.holder-table td:nth-child(3),.holder-table td:nth-child(4),.holder-table th:nth-child(3),.holder-table th:nth-child(4){text-align:right}.holder-table a{color:var(--muted)}.holder-table a:hover{color:var(--orange)}
 
 /* Fluid page gutters keep dashboard content proportional on wide and narrow screens. */
-.wrap{width:100%;max-width:none;padding-left:clamp(18px,3vw,56px);padding-right:clamp(18px,3vw,56px)}
+.wrap{width:min(1600px,100%);max-width:1600px;margin-left:auto;margin-right:auto;padding-left:clamp(18px,2vw,34px);padding-right:clamp(18px,2vw,34px)}
 .chart-heading-left{display:flex;align-items:center;gap:14px;flex-wrap:wrap}.chart-modes{display:flex;padding:2px;border:1px solid var(--line);border-radius:3px}.chart-modes button{border:0;background:transparent;color:var(--subtle);font-size:10px;padding:5px 8px;border-radius:2px}.chart-modes button:hover{background:var(--hover)}.chart-modes button.selected{background:var(--orange);color:#090909;font-weight:700}.chart-modes button:disabled{opacity:.45}@media(max-width:550px){.chart-heading{align-items:flex-start}.chart-heading-left{gap:8px}.chart-modes button{padding:5px 7px}}
