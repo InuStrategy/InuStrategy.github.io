@@ -1,5 +1,5 @@
 import {startMarketRefresh} from './live-market.js?v=browser-cache-1';
-import {setupTabs} from './tabs.js?v=responsive-1';
+import {setupTabs} from './tabs.js?v=wallet-filter-1';
 const $ = s => document.querySelector(s);
 const compact = v => v == null ? '—' : Intl.NumberFormat('en-US',{notation:'compact',maximumFractionDigits:2}).format(v);
 const usd = v => v == null ? '—' : Intl.NumberFormat('en-US',{style:'currency',currency:'USD',maximumFractionDigits:2}).format(v);
