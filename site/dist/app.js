@@ -1,5 +1,5 @@
 import {startMarketRefresh} from './live-market.js?v=validated-2';
-import {setupTabs} from './tabs.js?v=four-tabs-2';
+import {setupTabs} from './tabs.js?v=holders-1';
 const $ = s => document.querySelector(s);
 const compact = v => v == null ? '—' : Intl.NumberFormat('en-US',{notation:'compact',maximumFractionDigits:2}).format(v);
 const usd = v => v == null ? '—' : Intl.NumberFormat('en-US',{style:'currency',currency:'USD',maximumFractionDigits:2}).format(v);
@@ -36,7 +36,10 @@ document.querySelectorAll('[data-range]').forEach(b=>{b.setAttribute('aria-press
 function renderToken(data){
  if(lastMarket)data={...data,...lastMarket};
  for(const key of ['price','priceChange24h','marketCap','liquidity','volume24h']){if(data[key]==null&&token?.[key]!=null)data[key]=token[key];}
- token=data;text('#holder-total',compact(data.holders));text('#holder-detail',data.holdersSource?'Source: '+data.holdersSource+' · '+new Date(data.holdersUpdatedAt).toLocaleString():'Holder data unavailable.');text('#price',price(data.price));text('#primary-cap',money(data.marketCap));text('#primary-liquidity',money(data.liquidity));text('#primary-volume',money(data.volume24h));text('#price-change',data.priceChange24h==null?'Awaiting token launch':pct(data.priceChange24h)+' · 24H');$('#price-change').className='metric-note'+(data.priceChange24h>0?' positive':data.priceChange24h<0?' negative':'');
+ token=data;text('#holder-total',compact(data.holders));text('#holder-detail',data.holdersSource?'Source: '+data.holdersSource+' · '+new Date(data.holdersUpdatedAt).toLocaleString():'Holder data unavailable.');
+ const holderRows=(data.topHolders||[]).map((row,index)=>{const tr=document.createElement('tr');const rank=document.createElement('td');rank.textContent=String(index+1);const wallet=document.createElement('td'),link=document.createElement('a');link.href='https://solscan.io/account/'+encodeURIComponent(row.address);link.target='_blank';link.rel='noopener noreferrer';link.textContent=row.address.slice(0,5)+'…'+row.address.slice(-5)+' ↗';wallet.append(link);const balance=document.createElement('td');balance.textContent=compact(row.amount);const share=document.createElement('td');share.textContent=row.percentage==null?'—':row.percentage.toFixed(2)+'%';tr.append(rank,wallet,balance,share);return tr;});
+ if(!holderRows.length){const tr=document.createElement('tr'),td=document.createElement('td');td.colSpan=4;td.className='empty-row';td.textContent='Holder distribution is temporarily unavailable.';tr.append(td);holderRows.push(tr);}$('#holder-rows').replaceChildren(...holderRows);
+ text('#price',price(data.price));text('#primary-cap',money(data.marketCap));text('#primary-liquidity',money(data.liquidity));text('#primary-volume',money(data.volume24h));text('#price-change',data.priceChange24h==null?'Awaiting token launch':pct(data.priceChange24h)+' · 24H');$('#price-change').className='metric-note'+(data.priceChange24h>0?' positive':data.priceChange24h<0?' negative':'');
  text('#data-status',data.status==='live'?'MARKET DATA':data.status==='error'?'DATA UNAVAILABLE':'TOKEN LAUNCHING SOON');$('#data-status').classList.toggle('live',data.status==='live');
  text('#data-caption',data.status==='live'?`As of ${new Date(data.updatedAt).toLocaleString()} · ${data.source}`:data.status==='error'?'Market data is temporarily unavailable. Waiting for the next verified update.':'Market data will appear after launch. Unavailable metrics are shown as —.');
  const d=data.metrics||{};
@@ -89,7 +92,7 @@ async function refresh(){if(polling||document.hidden)return;polling=true;try{
  }
  config=snapshot.config;const generatedAt=Date.parse(snapshot.generatedAt);const stale=!Number.isFinite(generatedAt)||Date.now()-generatedAt>20*60000;
  // Suppress old prices and fee totals. Do not present a stale snapshot as live.
- if(stale&&snapshot.token.status!=='prelaunch'){snapshot.token.status='error';for(const key of ['price','marketCap','liquidity','volume24h','holders','totalSupply','priceChange24h','return7d','return30d'])snapshot.token[key]=null;snapshot.token.metrics={};snapshot.token.activity={};snapshot.token.history=[];snapshot.token.historyByRange={};}
+ if(stale&&snapshot.token.status!=='prelaunch'){snapshot.token.status='error';for(const key of ['price','marketCap','liquidity','volume24h','priceChange24h','return7d','return30d'])snapshot.token[key]=null;snapshot.token.metrics={};snapshot.token.activity={};snapshot.token.snapshotStale=true;}
  if(stale&&snapshot.fees.status!=='pending'){snapshot.fees={...snapshot.fees,status:'error',totalUsdValue:null,transactionCount:null,fees24h:null,fees7d:null,transactions:[],assetTotals:[],lastTransaction:null,note:'The published fee snapshot is stale. Totals are hidden until the next verified update.'};}
  if(!simulation){text('#announcement',config.announcement.text);renderFees(snapshot.fees);}renderToken(lastMarket?{...snapshot.token,...lastMarket}:snapshot.token);if(simulation){text('#data-status',(lastMarket||snapshot.token.status==='live')?'TEST DATA':'TEST DATA UNAVAILABLE');text('#chart-empty strong','Historical data unavailable');text('#chart-empty>span:last-child','This test feed does not include price history.');}
  }catch{if(!token)toast('Dashboard data is temporarily unavailable. Retrying automatically.');else{text('#data-status','DATA UNAVAILABLE');text('#data-caption','Could not refresh. Last published snapshot remains visible; check its timestamp.');}}finally{polling=false;}}

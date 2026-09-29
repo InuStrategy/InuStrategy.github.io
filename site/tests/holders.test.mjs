@@ -20,9 +20,11 @@ test('missing key skips requests; failed and invalid responses preserve market d
 test('Pump.fun uses totalHolders rather than top-holder list length',async()=>{
  const original=globalThis.fetch;
  try{
- globalThis.fetch=async()=>({ok:true,json:async()=>({topHolders:[{}],totalHolders:9562})});
- const data=await enrichHolders({holders:null},{...config,holderProvider:'pumpfun'});
+ const address='5pHeNsWMVEi1cbMzLhgqABnhEUwRTSzy5vBfeGWyJfxS';
+ globalThis.fetch=async()=>({ok:true,json:async()=>({topHolders:[{address,amount:250}],totalHolders:9562})});
+ const data=await enrichHolders({holders:null,totalSupply:1000},{...config,holderProvider:'pumpfun'});
  assert.equal(data.holders,9562);assert.equal(data.holdersSource,'Pump.fun');
+ assert.deepEqual(data.topHolders,[{address,amount:250,percentage:25}]);
  for(const result of [{topHolders:[{}]},{topHolders:[{}],totalHolders:0},{topHolders:[],totalHolders:-1}]){
  globalThis.fetch=async()=>({ok:true,json:async()=>result});assert.equal((await enrichHolders({holders:null},{...config,holderProvider:'pumpfun'})).holders,null);
  }

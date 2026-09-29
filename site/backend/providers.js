@@ -1,5 +1,5 @@
 /** All financial data enters the UI here. null means unknown; 0 means a measured zero. */
-export const EMPTY_TOKEN = {status:'prelaunch',price:null,priceChange24h:null,return7d:null,return30d:null,marketCap:null,liquidity:null,volume24h:null,holders:null,totalSupply:null,activity:{transactions:null,buys:null,sells:null,newHolders:null},history:[],source:'',updatedAt:null};
+export const EMPTY_TOKEN = {status:'prelaunch',price:null,priceChange24h:null,return7d:null,return30d:null,marketCap:null,liquidity:null,volume24h:null,holders:null,topHolders:[],totalSupply:null,activity:{transactions:null,buys:null,sells:null,newHolders:null},history:[],source:'',updatedAt:null};
 const num = x => x!==null && x!==undefined && x!=='' && Number.isFinite(Number(x)) ? Number(x) : null;
 const positive = x => {const n=num(x);return n!=null&&n>=0?n:null;};
 const isAddress = x => typeof x==='string'&&/^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(x);
@@ -19,6 +19,8 @@ export async function enrichHolders(data,config){
  try{
  const result=await json('https://advanced-api-v2.pump.fun/coins/top-holders/'+encodeURIComponent(config.tokenAddress));
  if(!Array.isArray(result.topHolders)||!Number.isSafeInteger(result.totalHolders)||result.totalHolders<result.topHolders.length)throw new Error('Invalid holder count');
+ const supply=positive(data.totalSupply);
+ data.topHolders=result.topHolders.filter(row=>isAddress(row?.address)&&positive(row?.amount)>0).slice(0,10).map(row=>({address:row.address,amount:positive(row.amount),percentage:supply>0?positive(row.amount)/supply*100:null}));
  data.holders=result.totalHolders;data.holdersSource='Pump.fun';data.holdersUpdatedAt=Date.now();data.holdersStatus='live';
  }catch{data.holdersStatus='unavailable';}
  return data;
