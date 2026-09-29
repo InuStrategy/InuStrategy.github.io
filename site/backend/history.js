@@ -10,7 +10,7 @@ export async function enrichHistory(token,mint){
  const pool=pools.data?.filter(p=>p.relationships?.base_token?.data?.id==='solana_'+mint).sort((a,b)=>Number(b.attributes.reserve_in_usd)-Number(a.attributes.reserve_in_usd))[0];
  if(!pool)return token;
  token.historyByRange={};
- for(const [frame,aggregate,limit,ranges] of [['minute',1,1000,['1H','6H','12H']],['minute',15,96,['1D']],['hour',1,720,['7D','30D']],['day',1,180,['3M','ALL']]]){
+ for(const [frame,aggregate,limit,ranges] of [['minute',1,1000,['5M','15M','1H','4H']],['minute',15,96,['1D']],['hour',1,720,['7D','30D']],['day',1,180,['3M','ALL']]]){
  try{
  const result=await get(root+'/pools/'+encodeURIComponent(pool.attributes.address)+'/ohlcv/'+frame+'?aggregate='+aggregate+'&limit='+limit+'&currency=usd&token=base');
  if(result.meta?.base?.address!==mint)throw new Error('Chart mint mismatch');

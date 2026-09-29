@@ -17,8 +17,8 @@ if(simulation){
 }
 let lastMarket=null;
 let config,token,fees,range='30D',chartMode='price',chartPoints=[],hovered=-1,lastFeeId=null,lastRecipient=null,polling=false;
-const days={'1H':1/24,'6H':6/24,'12H':12/24,'1D':1,'7D':7,'30D':30,'3M':90,'ALL':Infinity};
-const labels={'1H':'Last hour','6H':'Last 6 hours','12H':'Last 12 hours','1D':'Last 24 hours','7D':'Last 7 days','30D':'Last 30 days','3M':'Last 3 months','ALL':'All available history'};
+const days={'5M':5/1440,'15M':15/1440,'1H':1/24,'4H':4/24,'1D':1,'7D':7,'30D':30,'3M':90,'ALL':Infinity};
+const labels={'5M':'Last 5 minutes','15M':'Last 15 minutes','1H':'Last hour','4H':'Last 4 hours','1D':'Last 24 hours','7D':'Last 7 days','30D':'Last 30 days','3M':'Last 3 months','ALL':'All available history'};
 let toastTimer;
 function toast(message){text('#toast',message);$('#toast').hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('#toast').hidden=true,4500);}
 function navigate(url,fallback){if(url&&/^https:\/\//i.test(url))window.open(url,'_blank','noopener,noreferrer');else toast(fallback||'This link will be available when the official address is confirmed.');}
