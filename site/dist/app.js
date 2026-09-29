@@ -1,5 +1,5 @@
 import {startMarketRefresh} from './live-market.js?v=browser-cache-1';
-import {setupTabs} from './tabs.js?v=holders-1';
+import {setupTabs} from './tabs.js?v=responsive-1';
 const $ = s => document.querySelector(s);
 const compact = v => v == null ? '—' : Intl.NumberFormat('en-US',{notation:'compact',maximumFractionDigits:2}).format(v);
 const usd = v => v == null ? '—' : Intl.NumberFormat('en-US',{style:'currency',currency:'USD',maximumFractionDigits:2}).format(v);
@@ -9,12 +9,10 @@ const price = v => v == null ? '—' : '$' + v.toLocaleString('en-US',{minimumFr
 const text = (selector,value) => {$(selector).textContent=value;};
 const simulation=new URLSearchParams(location.search).get('mode')==='test';
 if(simulation){
- text('#announcement','SIMULATION · Live e/acc test-token data · Not $INSTR market data');
  text('.dashboard-heading h1','e/acc · Test simulation');
  text('.primary-metric .metric-label .orange','$e/acc');
  text('#performance h2','$e/acc Performance · Test');
  document.querySelectorAll('[data-link=buy]').forEach(el=>{el.disabled=true;el.textContent='Test mode';});
- const exit=document.createElement('a');exit.href='index.html';exit.textContent='Exit simulation ↗';$('.announcement .wrap').append(' ',exit);
  text('#fee-note','Test mode: no verified recipient payouts are supplied by this market-data feed.');
 }
 let lastMarket=null;
@@ -94,7 +92,7 @@ async function refresh(){if(polling||document.hidden)return;polling=true;try{
  // Suppress old prices and fee totals. Do not present a stale snapshot as live.
  if(stale&&snapshot.token.status!=='prelaunch'){snapshot.token.status='error';for(const key of ['price','marketCap','liquidity','volume24h','priceChange24h','return7d','return30d'])snapshot.token[key]=null;snapshot.token.metrics={};snapshot.token.activity={};snapshot.token.snapshotStale=true;}
  if(stale&&snapshot.fees.status!=='pending'){snapshot.fees={...snapshot.fees,status:'error',totalUsdValue:null,transactionCount:null,fees24h:null,fees7d:null,transactions:[],assetTotals:[],lastTransaction:null,note:'The published fee snapshot is stale. Totals are hidden until the next verified update.'};}
- if(!simulation){text('#announcement',config.announcement.text);renderFees(snapshot.fees);}renderToken(lastMarket?{...snapshot.token,...lastMarket}:snapshot.token);if(simulation){text('#data-status',(lastMarket||snapshot.token.status==='live')?'TEST DATA':'TEST DATA UNAVAILABLE');text('#chart-empty strong','Historical data unavailable');text('#chart-empty>span:last-child','This test feed does not include price history.');}
+ if(!simulation)renderFees(snapshot.fees);renderToken(lastMarket?{...snapshot.token,...lastMarket}:snapshot.token);if(simulation){text('#data-status',(lastMarket||snapshot.token.status==='live')?'TEST DATA':'TEST DATA UNAVAILABLE');text('#chart-empty strong','Historical data unavailable');text('#chart-empty>span:last-child','This test feed does not include price history.');}
  }catch{if(!token)toast('Dashboard data is temporarily unavailable. Retrying automatically.');else{text('#data-status','DATA UNAVAILABLE');text('#data-caption','Could not refresh. Last published snapshot remains visible; check its timestamp.');}}finally{polling=false;}}
 const updateMarket=startMarketRefresh(()=>simulation?'CbcyNo7m1amFWqEQm2m4PLv1UNvpcL3C1Ujm6AkzpKoU':config?.tokenAddress,data=>{lastMarket={...lastMarket,...data};if(token&&config){renderToken({...token,...lastMarket});if(simulation)text('#data-status','TEST DATA');}});
 await refresh();if(!lastMarket)void updateMarket();setInterval(refresh,30000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)refresh();});

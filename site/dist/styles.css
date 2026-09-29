@@ -24,3 +24,6 @@
 @media(max-width:700px){#performance .chart{height:300px}.performance-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.tab-panel{padding-top:20px}nav.open{display:flex}}
 @media(prefers-reduced-motion:reduce){.tab-panel.is-moving{transition:none}}
 .holder-table{margin-top:26px}.holder-table table{width:100%}.holder-table td:nth-child(3),.holder-table td:nth-child(4),.holder-table th:nth-child(3),.holder-table th:nth-child(4){text-align:right}.holder-table a{color:var(--muted)}.holder-table a:hover{color:var(--orange)}
+
+/* Fluid page gutters keep dashboard content proportional on wide and narrow screens. */
+.wrap{width:100%;max-width:none;padding-left:clamp(18px,3vw,56px);padding-right:clamp(18px,3vw,56px)}
