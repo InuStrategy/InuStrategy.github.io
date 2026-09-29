@@ -7,12 +7,20 @@ export function selectMarket(pairs,mint){
  if(!Object.keys(valid).length)throw new Error('No valid market metrics');
  return {...valid,status:'live',source:'DEX Screener · highest-liquidity pool',updatedAt:Date.now()};
 }
+const CACHE_TTL=5000;
+const cacheKey=mint=>'inu-market-v1:'+mint;
+const lockKey=mint=>'inu-market-lock-v1:'+mint;
+function readCache(mint){try{const value=JSON.parse(localStorage.getItem(cacheKey(mint)));return value?.mint===mint&&Number.isFinite(value.savedAt)&&value.data?value:null;}catch{return null;}}
+function writeCache(mint,data){try{localStorage.setItem(cacheKey(mint),JSON.stringify({mint,savedAt:Date.now(),data}));}catch{}}
+function acquireLock(mint){try{const key=lockKey(mint),now=Date.now(),active=Number(localStorage.getItem(key));if(Number.isFinite(active)&&active>now)return false;localStorage.setItem(key,String(now+CACHE_TTL));return true;}catch{return true;}}
+function releaseLock(mint){try{localStorage.removeItem(lockKey(mint));}catch{}}
 export function startMarketRefresh(getMint,onData){
  let busy=false;
- async function update(){if(busy)return;const mint=getMint();if(!mint)return;busy=true;
- try{const response=await fetch('https://api.dexscreener.com/token-pairs/v1/solana/'+encodeURIComponent(mint),{cache:'no-store',signal:AbortSignal.timeout(8000)});if(!response.ok)throw new Error('DEX Screener HTTP '+response.status);const data=selectMarket(await response.json(),mint);if(getMint()===mint)onData(data);}
- catch(error){console.warn('Market refresh failed; retaining last values.',error.message);}finally{busy=false;}}
- function start(){void update();setInterval(update,10000);}
+ async function update(){if(busy||document.visibilityState==='hidden')return;const mint=getMint();if(!mint)return;const cached=readCache(mint),now=Date.now();if(cached){onData(cached.data);if(now-cached.savedAt<CACHE_TTL)return;}if(!acquireLock(mint))return;busy=true;
+ try{const response=await fetch('https://api.dexscreener.com/token-pairs/v1/solana/'+encodeURIComponent(mint),{cache:'no-store',signal:AbortSignal.timeout(8000)});if(!response.ok)throw new Error('DEX Screener HTTP '+response.status);const data=selectMarket(await response.json(),mint);writeCache(mint,data);if(getMint()===mint)onData(data);}
+ catch(error){console.warn('Market refresh failed; retaining last values.',error.message);}finally{releaseLock(mint);busy=false;}}
+ function start(){void update();setInterval(update,CACHE_TTL);}
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
+ addEventListener('storage',event=>{const mint=getMint();if(mint&&event.key===cacheKey(mint)){const cached=readCache(mint);if(cached)onData(cached.data);}});
  return update;
 }

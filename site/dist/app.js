@@ -1,4 +1,4 @@
-import {startMarketRefresh} from './live-market.js?v=validated-2';
+import {startMarketRefresh} from './live-market.js?v=browser-cache-1';
 import {setupTabs} from './tabs.js?v=holders-1';
 const $ = s => document.querySelector(s);
 const compact = v => v == null ? '—' : Intl.NumberFormat('en-US',{notation:'compact',maximumFractionDigits:2}).format(v);
