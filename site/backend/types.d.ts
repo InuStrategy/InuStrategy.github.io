@@ -5,6 +5,8 @@ export interface TokenData {
   marketCap: number | null;
   liquidity: number | null;
   volume24h: number | null;
+  metricChanges24h?: Record<'price'|'marketCap'|'liquidity'|'volume24h', {amount: number; percent: number; baseline: number} | null>;
+  metricHistory?: {timestamp: number; marketCap: number | null; liquidity: number | null; volume24h: number | null}[];
   holders: number | null;
   totalSupply: number | null;
   return7d: number | null;

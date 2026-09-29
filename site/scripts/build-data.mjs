@@ -1,4 +1,5 @@
 import {enrichHistory} from '../backend/history.js';
+import {enrichMetricChanges} from '../backend/changes.js';
 import {readFile,writeFile,mkdir,rename} from 'node:fs/promises';
 import {TokenProvider,FeeProvider} from '../backend/providers.js';
 const config=JSON.parse(await readFile(new URL('../config.json',import.meta.url),'utf8'));
@@ -13,6 +14,13 @@ if(process.env.FEE_SOURCES)config.fee.sourceAddresses=process.env.FEE_SOURCES.sp
 for(const endpoint of [config.rpcUrl,config.tokenDataUrl,config.fee.indexerUrl].filter(Boolean)){if(new URL(endpoint).protocol!=='https:')throw new Error('Provider endpoints must use HTTPS');}
 const [token,fees]=await Promise.all([new TokenProvider(config).get(),new FeeProvider(config).get()]);
 await enrichHistory(token,config.tokenAddress);
+let previousMetricHistory=[];
+try{
+ const previousUrl=process.env.PUBLIC_SNAPSHOT_URL||'https://inustrategy.com/data/snapshot.json';
+ const response=await fetch(previousUrl,{cache:'no-store',signal:AbortSignal.timeout(8000)});
+ if(response.ok){const previous=await response.json();if(previous?.config?.tokenAddress===config.tokenAddress)previousMetricHistory=previous.token?.metricHistory||[];}
+}catch{}
+enrichMetricChanges(token,previousMetricHistory);
 // These calculations run on the trusted build worker, never from browser input.
 const buys=token.activity.buys,sells=token.activity.sells;
 const trades=buys!=null&&sells!=null?buys+sells:null;
