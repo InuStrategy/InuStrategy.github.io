@@ -27,3 +27,4 @@
 
 /* Fluid page gutters keep dashboard content proportional on wide and narrow screens. */
 .wrap{width:100%;max-width:none;padding-left:clamp(18px,3vw,56px);padding-right:clamp(18px,3vw,56px)}
+.chart-heading-left{display:flex;align-items:center;gap:14px;flex-wrap:wrap}.chart-modes{display:flex;padding:2px;border:1px solid var(--line);border-radius:3px}.chart-modes button{border:0;background:transparent;color:var(--subtle);font-size:10px;padding:5px 8px;border-radius:2px}.chart-modes button:hover{background:var(--hover)}.chart-modes button.selected{background:var(--orange);color:#090909;font-weight:700}.chart-modes button:disabled{opacity:.45}@media(max-width:550px){.chart-heading{align-items:flex-start}.chart-heading-left{gap:8px}.chart-modes button{padding:5px 7px}}
