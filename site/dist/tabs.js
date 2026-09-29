@@ -1,6 +1,6 @@
 // DOM order is the source of truth for left/right movement.
 export function setupTabs(onChange){
- const ids=['overview','performance','holders','fees','about'];const main=document.querySelector('main');
+ const ids=['overview','performance','holders','fees'];const main=document.querySelector('main');
  const holder=document.createElement('section');holder.id='holders';holder.innerHTML='<div class="eyebrow">TOKEN OWNERSHIP</div><h2>Holders</h2><div class="holder-total" id="holder-total">—</div><p id="holder-detail">Awaiting token launch.</p>';main.append(holder);
  const overview=document.createElement('div');overview.id='overview-panel';for(const id of ['overview','meme-metrics','info'])overview.append(document.getElementById(id));
  const panels=[overview,...ids.slice(1).map(id=>document.getElementById(id))];const stage=document.createElement('div');stage.className='tab-stage';main.append(stage);

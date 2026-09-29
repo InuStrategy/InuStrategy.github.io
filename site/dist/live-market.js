@@ -1,10 +1,11 @@
 export function selectMarket(pairs,mint){
  if(!Array.isArray(pairs))throw new Error('Invalid DEX response');
- const pair=pairs.filter(p=>p.chainId==='solana'&&p.baseToken?.address===mint).sort((a,b)=>(b.liquidity?.usd||0)-(a.liquidity?.usd||0))[0];
+ const pair=pairs.filter(p=>p&&p.chainId==='solana'&&p.baseToken?.address===mint).sort((a,b)=>(b.liquidity?.usd||0)-(a.liquidity?.usd||0))[0];
  if(!pair)throw new Error('No matching pool');
- const values={price:Number(pair.priceUsd),priceChange24h:pair.priceChange?.h24,marketCap:pair.marketCap,liquidity:pair.liquidity?.usd,volume24h:pair.volume?.h24};
- if(pair.priceUsd==null||Object.values(values).some(v=>typeof v!=='number'||!Number.isFinite(v))||Object.entries(values).some(([k,v])=>k!=='priceChange24h'&&v<0))throw new Error('Incomplete market metrics');
- return {...values,status:'live',source:'DEX Screener · highest-liquidity pool',updatedAt:Date.now()};
+ const values={price:pair.priceUsd,priceChange24h:pair.priceChange?.h24,marketCap:pair.marketCap,liquidity:pair.liquidity?.usd,volume24h:pair.volume?.h24};
+ const valid={};for(const [key,raw] of Object.entries(values)){if(raw===null||raw===undefined||raw===''||!['number','string'].includes(typeof raw))continue;const value=Number(raw);if(Number.isFinite(value)&&(key==='priceChange24h'||value>=0))valid[key]=value;}
+ if(!Object.keys(valid).length)throw new Error('No valid market metrics');
+ return {...valid,status:'live',source:'DEX Screener · highest-liquidity pool',updatedAt:Date.now()};
 }
 export function startMarketRefresh(getMint,onData){
  let busy=false;
