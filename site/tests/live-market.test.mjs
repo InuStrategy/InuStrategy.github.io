@@ -1,0 +1,6 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {selectMarket,startMarketRefresh} from '../dist/live-market.js';
+const pair={chainId:'solana',baseToken:{address:'mint'},priceUsd:'0.009297',priceChange:{h24:-2},marketCap:9140000,liquidity:{usd:522440},volume:{h24:16780000}};
+test('market parser selects matching liquid pool and rejects missing data',()=>{assert.equal(selectMarket([{...pair,baseToken:{address:'other'}},pair],'mint').price,.009297);assert.throws(()=>selectMarket([{...pair,marketCap:null}],'mint'));});
+test('poller starts immediately, uses 10000ms, and recovers after rate limit',async()=>{const old={fetch:globalThis.fetch,document:globalThis.document,setInterval:globalThis.setInterval};let tick,interval,values=[];globalThis.document={readyState:'complete'};globalThis.setInterval=(fn,ms)=>{tick=fn;interval=ms;};globalThis.fetch=async()=>({ok:false,status:429});try{startMarketRefresh(()=> 'mint',d=>values.push(d));await new Promise(r=>setImmediate(r));assert.equal(interval,10000);assert.equal(values.length,0);globalThis.fetch=async()=>({ok:true,json:async()=>[pair]});await tick();assert.equal(values.length,1);globalThis.fetch=async()=>{throw Error('offline');};await tick();assert.equal(values.length,1);}finally{Object.assign(globalThis,old);}});

@@ -1,10 +1,11 @@
-import {setupTabs} from './tabs.js';
+import {startMarketRefresh} from './live-market.js';
+import {setupTabs} from './tabs.js?v=about-1';
 const $ = s => document.querySelector(s);
 const compact = v => v == null ? '—' : Intl.NumberFormat('en-US',{notation:'compact',maximumFractionDigits:2}).format(v);
 const usd = v => v == null ? '—' : Intl.NumberFormat('en-US',{style:'currency',currency:'USD',maximumFractionDigits:2}).format(v);
 const money = v => v == null ? '—' : '$'+compact(v);
 const pct = v => v == null ? '—' : (v>0?'+':'')+v.toFixed(2)+'%';
-const price = v => v == null ? '—' : '$' + v.toLocaleString('en-US',{minimumFractionDigits:6,maximumFractionDigits:10});
+const price = v => v == null ? '—' : '$' + v.toLocaleString('en-US',{minimumFractionDigits:6,maximumFractionDigits:6});
 const text = (selector,value) => {$(selector).textContent=value;};
 const simulation=new URLSearchParams(location.search).get('mode')==='test';
 if(simulation){
@@ -16,6 +17,7 @@ if(simulation){
  const exit=document.createElement('a');exit.href='index.html';exit.textContent='Exit simulation ↗';$('.announcement .wrap').append(' ',exit);
  text('#fee-note','Test mode: no verified recipient payouts are supplied by this market-data feed.');
 }
+let lastMarket=null;
 let config,token,fees,range='30D',chartPoints=[],hovered=-1,lastFeeId=null,lastRecipient=null,polling=false;
 const days={'1H':1/24,'6H':6/24,'12H':12/24,'1D':1,'7D':7,'30D':30,'3M':90,'ALL':Infinity};
 const labels={'1H':'Last hour','6H':'Last 6 hours','12H':'Last 12 hours','1D':'Last 24 hours','7D':'Last 7 days','30D':'Last 30 days','3M':'Last 3 months','ALL':'All available history'};
@@ -87,6 +89,7 @@ async function refresh(){if(polling||document.hidden)return;polling=true;try{
  // Suppress old prices and fee totals. Do not present a stale snapshot as live.
  if(stale&&snapshot.token.status!=='prelaunch'){snapshot.token.status='error';for(const key of ['price','marketCap','liquidity','volume24h','holders','totalSupply','priceChange24h','return7d','return30d'])snapshot.token[key]=null;snapshot.token.metrics={};snapshot.token.activity={};snapshot.token.history=[];snapshot.token.historyByRange={};}
  if(stale&&snapshot.fees.status!=='pending'){snapshot.fees={...snapshot.fees,status:'error',totalUsdValue:null,transactionCount:null,fees24h:null,fees7d:null,transactions:[],assetTotals:[],lastTransaction:null,note:'The published fee snapshot is stale. Totals are hidden until the next verified update.'};}
- if(!simulation){text('#announcement',config.announcement.text);renderFees(snapshot.fees);}renderToken(snapshot.token);if(simulation){text('#data-status',snapshot.token.status==='live'?'TEST DATA':'TEST DATA UNAVAILABLE');text('#chart-empty strong','Historical data unavailable');text('#chart-empty>span:last-child','This test feed does not include price history.');}
+ if(!simulation){text('#announcement',config.announcement.text);renderFees(snapshot.fees);}renderToken(lastMarket?{...snapshot.token,...lastMarket}:snapshot.token);if(simulation){text('#data-status',(lastMarket||snapshot.token.status==='live')?'TEST DATA':'TEST DATA UNAVAILABLE');text('#chart-empty strong','Historical data unavailable');text('#chart-empty>span:last-child','This test feed does not include price history.');}
  }catch{if(!token)toast('Dashboard data is temporarily unavailable. Retrying automatically.');else{text('#data-status','DATA UNAVAILABLE');text('#data-caption','Could not refresh. Last published snapshot remains visible; check its timestamp.');}}finally{polling=false;}}
-await refresh();setInterval(refresh,30000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)refresh();});
+const updateMarket=startMarketRefresh(()=>simulation?'CbcyNo7m1amFWqEQm2m4PLv1UNvpcL3C1Ujm6AkzpKoU':config?.tokenAddress,data=>{lastMarket=data;if(token&&config){renderToken({...token,...data});if(simulation)text('#data-status','TEST DATA');}});
+await refresh();if(!lastMarket)void updateMarket();setInterval(refresh,30000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)refresh();});
