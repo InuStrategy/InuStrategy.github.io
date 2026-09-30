@@ -40,6 +40,7 @@ $('#menu').addEventListener('click',()=>{const open=$('#navigation').classList.t
 $('#navigation').addEventListener('click',e=>{if(e.target.closest('a'))closeMenu();});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeMenu();hovered=-1;$('#chart-tooltip').hidden=true;drawChart();}});
 const xFeed=$('#x-feed'),xFeedToggle=$('#x-feed-toggle');function setXFeed(collapsed){xFeed.classList.toggle('collapsed',collapsed);xFeedToggle.setAttribute('aria-expanded',String(!collapsed));xFeedToggle.setAttribute('aria-label',collapsed?'Expand X feed':'Collapse X feed');xFeedToggle.textContent=collapsed?'≪':'≫';try{localStorage.setItem('inu-x-feed',collapsed?'collapsed':'open');}catch{}}xFeedToggle.addEventListener('click',()=>setXFeed(!xFeed.classList.contains('collapsed')));try{setXFeed(localStorage.getItem('inu-x-feed')==='collapsed');}catch{setXFeed(false);}
+function loadXTimeline(){if(location.hash==='#media'&&window.twttr?.widgets)window.twttr.widgets.load(document.getElementById('x-feed-body'));}addEventListener('load',loadXTimeline);
 document.querySelectorAll('[data-range]').forEach(b=>{b.setAttribute('aria-pressed',String(b.dataset.range===range));b.addEventListener('click',()=>{range=b.dataset.range;document.querySelectorAll('[data-range]').forEach(x=>{x.classList.toggle('selected',x===b);x.setAttribute('aria-pressed',String(x===b));});hovered=-1;$('#chart-tooltip').hidden=true;drawChart();});});
 document.querySelectorAll('[data-chart-mode]').forEach(b=>b.addEventListener('click',()=>{chartMode=b.dataset.chartMode;document.querySelectorAll('[data-chart-mode]').forEach(x=>{x.classList.toggle('selected',x===b);x.setAttribute('aria-pressed',String(x===b));});hovered=-1;$('#chart-tooltip').hidden=true;drawChart();}));
 function renderToken(data){
@@ -84,7 +85,7 @@ $('#chart').addEventListener('pointermove',e=>{if(!chartPoints.length)return;con
 $('#chart').addEventListener('pointerleave',()=>{hovered=-1;$('#chart-tooltip').hidden=true;drawChart();});$('#chart').addEventListener('keydown',e=>{if(!chartPoints.length||!['ArrowLeft','ArrowRight','Home','End'].includes(e.key))return;e.preventDefault();hovered=e.key==='Home'?0:e.key==='End'?chartPoints.length-1:Math.max(0,Math.min(chartPoints.length-1,hovered+(e.key==='ArrowRight'?1:-1)));drawChart();});
 
 new ResizeObserver(()=>drawChart()).observe($('#chart'));text('#year',new Date().getFullYear());
-setupTabs(()=>{hovered=-1;$('#chart-tooltip').hidden=true;drawChart();});
+setupTabs(()=>{hovered=-1;$('#chart-tooltip').hidden=true;drawChart();loadXTimeline();});
 const periods=$('.periods');$('#performance').append(periods);
 const stats=document.createElement('div');stats.id='performance-stats';stats.className='performance-stats';$('#performance').append(stats);
 async function refresh(){if(polling||document.hidden)return;polling=true;try{
