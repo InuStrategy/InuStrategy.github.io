@@ -1,6 +1,6 @@
 import {startMarketRefresh} from './live-market.js?v=activity-fallback-2';
 import {setupTabs} from './tabs.js?v=allocation-placement-1';
-import {loadShortHistory} from './live-history.js?v=short-ranges-1';
+import {loadChartHistory} from './live-history.js?v=all-ranges-1';
 const $ = s => document.querySelector(s);
 const compact = v => v == null ? '—' : Intl.NumberFormat('en-US',{notation:'compact',maximumFractionDigits:2}).format(v);
 const usd = v => v == null ? '—' : Intl.NumberFormat('en-US',{style:'currency',currency:'USD',maximumFractionDigits:2}).format(v);
@@ -99,7 +99,7 @@ async function refresh(){if(polling||document.hidden)return;polling=true;try{
  const trades=buys!=null&&sells!=null?buys+sells:null;
  t.metrics={trades24h:trades,buySellRatio:sells>0&&buys!=null?buys/sells:null,averageTrade:trades>0&&t.volume24h!=null?t.volume24h/trades:null,volumeLiquidityRatio:t.liquidity>0&&t.volume24h!=null?t.volume24h/t.liquidity:null};
  }
- config=snapshot.config;updateTokenAddress();if(simulation){try{Object.assign(snapshot.token,await loadShortHistory(TEST_MINT));}catch(error){console.warn('Short-range chart refresh failed; retaining existing chart data.',error.message);}}const generatedAt=Date.parse(snapshot.generatedAt);const stale=!Number.isFinite(generatedAt)||Date.now()-generatedAt>20*60000;
+ config=snapshot.config;updateTokenAddress();if(simulation){try{Object.assign(snapshot.token,await loadChartHistory(TEST_MINT));}catch(error){console.warn('Chart refresh failed; retaining existing chart data.',error.message);}}const generatedAt=Date.parse(snapshot.generatedAt);const stale=!Number.isFinite(generatedAt)||Date.now()-generatedAt>20*60000;
  // Suppress old prices and distribution totals. Do not present a stale snapshot as live.
  if(stale&&snapshot.token.status!=='prelaunch'){snapshot.token.status='error';for(const key of ['price','marketCap','liquidity','volume24h','priceChange24h','return7d','return30d'])snapshot.token[key]=null;snapshot.token.metrics={};snapshot.token.activity={};snapshot.token.snapshotStale=true;}
  if(stale&&snapshot.distributions.status!=='pending'){snapshot.distributions={...snapshot.distributions,status:'error',totalAmount:null,totalUsdValue:null,totalBtcValue:null,transactionCount:null,uniqueRecipients:null,distributed24h:null,transactions:[],topReceivers:[],lastDistribution:null,note:'The published distribution snapshot is stale. Totals are hidden until the next verified update.'};}
