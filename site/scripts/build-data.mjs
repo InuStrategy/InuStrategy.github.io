@@ -31,7 +31,7 @@ enrichMetricChanges(token,previousMetricHistory);
 const buys=token.activity.buys,sells=token.activity.sells;
 const trades=buys!=null&&sells!=null?buys+sells:null;
 token.metrics={trades24h:trades,buySellRatio:sells>0&&buys!=null?buys/sells:null,averageTrade:trades>0&&token.volume24h!=null?token.volume24h/trades:null,volumeLiquidityRatio:token.liquidity>0&&token.volume24h!=null?token.volume24h/token.liquidity:null};
-const links={};for(const key of ['buy','explorer','x']){const value=config.links[key];links[key]=typeof value==='string'&&value.startsWith('https://')?value:'';}
+const links={};for(const key of ['buy','explorer','x','youtube']){const value=config.links[key];links[key]=typeof value==='string'&&value.startsWith('https://')?value:'';}
 if(!links.explorer&&config.tokenAddress)links.explorer='https://solscan.io/token/'+encodeURIComponent(config.tokenAddress);
 // Explicit public-field allowlist. RPC/indexer URLs and environment secrets are never published.
 const publicConfig={name:config.name,symbol:config.symbol,chain:config.chain,tokenAddress:config.tokenAddress,links,announcement:config.announcement,fee:{enabled:config.fee.enabled,recipientAddress:config.fee.recipientAddress,recipientName:config.fee.recipientName,displayLabel:config.fee.displayLabel,explorerAddressUrl:config.fee.explorerAddressUrl},distribution:{enabled:config.distribution.enabled,senderAddress:config.distribution.senderAddress,assetMint:config.distribution.assetMint,assetSymbol:config.distribution.assetSymbol,displayLabel:config.distribution.displayLabel,explorerAddressUrl:config.distribution.explorerAddressUrl}};
