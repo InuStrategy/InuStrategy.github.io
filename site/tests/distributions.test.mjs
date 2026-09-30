@@ -4,12 +4,12 @@ import {aggregateDistributions,DistributionProvider} from '../backend/distributi
 
 const now=Date.now();
 const config={distribution:{enabled:true,senderAddress:'11111111111111111111111111111111',assetMint:'So11111111111111111111111111111111111111112',assetSymbol:'USDC',indexerUrl:''}};
-const transfer=(extra={})=>({txHash:'distribution-1',instructionIndex:0,timestamp:now-1000,sender:config.distribution.senderAddress,recipient:'Vote111111111111111111111111111111111111111',mint:config.distribution.assetMint,amount:100,finalized:true,priceBasis:'historical',historicalUsdPrice:1,...extra});
+const transfer=(extra={})=>({txHash:'distribution-1',instructionIndex:0,timestamp:now-1000,sender:config.distribution.senderAddress,recipient:'Vote111111111111111111111111111111111111111',mint:config.distribution.assetMint,amount:100,finalized:true,priceBasis:'historical',historicalUsdPrice:1,historicalBtcUsdPrice:100000,...extra});
 
 test('distribution accounting ranks receivers and deduplicates transfer instructions',()=>{
  const first=transfer(),second=transfer({txHash:'distribution-2',recipient:'Stake11111111111111111111111111111111111111',amount:50});
  const result=aggregateDistributions([first,second,first],config,now);
- assert.equal(result.totalAmount,150);assert.equal(result.totalUsdValue,150);assert.equal(result.transactionCount,2);assert.equal(result.uniqueRecipients,2);assert.equal(result.distributed24h,150);
+ assert.equal(result.totalAmount,150);assert.equal(result.totalUsdValue,150);assert.equal(result.totalBtcValue,.0015);assert.equal(result.transactionCount,2);assert.equal(result.uniqueRecipients,2);assert.equal(result.distributed24h,150);
  assert.equal(result.topReceivers[0].address,first.recipient);assert.equal(result.topReceivers[0].percentage,100/150*100);
 });
 

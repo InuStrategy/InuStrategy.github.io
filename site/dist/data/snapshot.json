@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-29T20:15:44.260Z",
+  "generatedAt": "2026-09-30T01:00:56.327Z",
   "config": {
     "name": "InuStrategy",
     "symbol": "INSTR",
@@ -88,6 +88,7 @@
     "assetSymbol": "USDC",
     "totalAmount": null,
     "totalUsdValue": null,
+    "totalBtcValue": null,
     "transactionCount": null,
     "uniqueRecipients": null,
     "distributed24h": null,

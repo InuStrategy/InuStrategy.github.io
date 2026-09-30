@@ -37,7 +37,7 @@ const publicConfig={name:config.name,symbol:config.symbol,chain:config.chain,tok
 // Only the recent normalized fee records are needed by the UI. Lifetime accounting ran above.
 fees.transactions=fees.transactions.slice(0,5).map(({timestamp,amount,asset,usdValue,txHash})=>({timestamp,amount,asset,usdValue,txHash}));
 if(fees.lastTransaction){const {timestamp,amount,asset,usdValue,txHash}=fees.lastTransaction;fees.lastTransaction={timestamp,amount,asset,usdValue,txHash};}
-distributions.transactions=distributions.transactions.slice(0,10).map(({timestamp,amount,asset,usdValue,txHash,recipient})=>({timestamp,amount,asset,usdValue,txHash,recipient}));
+distributions.transactions=distributions.transactions.slice(0,10).map(({timestamp,amount,asset,usdValue,btcValue,txHash,recipient})=>({timestamp,amount,asset,usdValue,btcValue,txHash,recipient}));
 if(distributions.lastDistribution){const {timestamp,amount,asset,usdValue,txHash,recipient}=distributions.lastDistribution;distributions.lastDistribution={timestamp,amount,asset,usdValue,txHash,recipient};}
 const snapshot={schemaVersion:1,generatedAt:new Date().toISOString(),config:publicConfig,token,fees,distributions};
 const output=new URL('../dist/data/',import.meta.url);await mkdir(output,{recursive:true});

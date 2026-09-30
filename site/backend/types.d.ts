@@ -51,6 +51,7 @@ export interface DistributionTransfer {
   failed?: boolean;
   priceBasis: 'historical' | 'unavailable';
   historicalUsdPrice?: number;
+  historicalBtcUsdPrice?: number;
 }
 export interface DistributionStats {
   status: 'pending' | 'verified' | 'error';
@@ -59,6 +60,7 @@ export interface DistributionStats {
   assetSymbol: string;
   totalAmount: number | null;
   totalUsdValue: number | null;
+  totalBtcValue: number | null;
   transactionCount: number | null;
   uniqueRecipients: number | null;
   distributed24h: number | null;
