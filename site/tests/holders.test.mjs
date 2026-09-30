@@ -40,7 +40,7 @@ test('Helius paginates, aggregates token accounts by owner, and filters program 
    if(body.method==='getTokenAccounts'){pages++;const filler=Array.from({length:999},()=>({owner:'bad',amount:'0'}));return {ok:true,json:async()=>({result:{token_accounts:pages===1?[...filler,{owner:wallet,amount:'100'}]:pages===2?[{owner:wallet,amount:'50'},{owner:pool,amount:'400'}]:[]}})};}
    assert.equal(body.method,'getMultipleAccounts');return {ok:true,json:async()=>({result:{value:[{owner:'11111111111111111111111111111111',executable:false},{owner:'LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo',executable:false}]}})};
   };
-  const data=await enrichHolders({totalSupply:10},{...config,holderProvider:'helius',heliusApiKey:'secret-test-key',tokenDecimals:2,rpcUrl:'https://api.mainnet-beta.solana.com'});
+  const data=await enrichHolders({totalSupply:10},{...config,holderProvider:'helius',heliusApiKey:'secret-test-key',tokenDecimals:2,heliusThrottleMs:0,rpcUrl:'https://api.mainnet-beta.solana.com'});
   assert.equal(pages,2);assert.equal(data.holders,1);assert.equal(data.holdersSource,'Helius · filtered wallets');assert.equal(data.topHoldersExcluded,1);assert.equal(data.holderTokenAccounts,3);
   assert.deepEqual(data.topHolders,[{address:wallet,amount:1.5,percentage:15}]);assert.equal(JSON.stringify(data).includes('secret-test-key'),false);
  }finally{globalThis.fetch=original;}

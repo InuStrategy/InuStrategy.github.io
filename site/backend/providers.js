@@ -22,18 +22,19 @@ async function pumpfunHolders(data,config){
 }
 async function heliusHolders(data,config){
  const endpoint=new URL('https://mainnet.helius-rpc.com/');endpoint.searchParams.set('api-key',config.heliusApiKey);
+ const wait=ms=>new Promise(resolve=>setTimeout(resolve,ms)),throttle=Number.isFinite(config.heliusThrottleMs)?config.heliusThrottleMs:150;
+ const request=async(method,params)=>{for(let attempt=0;attempt<4;attempt++){try{const response=await json(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jsonrpc:'2.0',id:'holders',method,params})});if(response.error||!('result' in response))throw new Error('Invalid Helius response');if(throttle>0)await wait(throttle);return response.result;}catch(error){if(error.status!==429||attempt===3)throw error;await wait(1000*2**attempt);}}};
  const balances=new Map();let accountCount=0;
  for(let page=1;page<=100;page++){
-  const response=await json(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jsonrpc:'2.0',id:'holders',method:'getTokenAccounts',params:{mint:config.tokenAddress,page,limit:1000,displayOptions:{}}})});
-  const rows=response?.result?.token_accounts;if(!Array.isArray(rows))throw new Error('Invalid Helius response');
+  const response=await request('getTokenAccounts',{mint:config.tokenAddress,page,limit:1000,displayOptions:{}});
+  const rows=response?.token_accounts;if(!Array.isArray(rows))throw new Error('Invalid Helius response');
   if(rows.length===0)break;
   for(const row of rows){const amount=positive(row?.amount);if(isAddress(row?.owner)&&amount>0){balances.set(row.owner,(balances.get(row.owner)||0)+amount);accountCount++;}}
   if(rows.length<1000)break;if(page===100)throw new Error('Helius pagination limit reached');
  }
  const owners=[...balances.keys()],wallets=[];
- const rpcConfig={...config,rpcUrl:endpoint.toString()};
  for(let offset=0;offset<owners.length;offset+=100){
-  const group=owners.slice(offset,offset+100),accounts=await rpc(rpcConfig,'getMultipleAccounts',[group,{encoding:'base64',commitment:'finalized'}]);
+  const group=owners.slice(offset,offset+100),accounts=await request('getMultipleAccounts',[group,{encoding:'base64',commitment:'finalized'}]);
   if(!Array.isArray(accounts?.value)||accounts.value.length!==group.length)throw new Error('Invalid account ownership response');
   group.forEach((owner,index)=>{const account=accounts.value[index];if(account?.owner===SYSTEM_PROGRAM&&!account.executable&&!BURN_ADDRESSES.has(owner))wallets.push(owner);});
  }
