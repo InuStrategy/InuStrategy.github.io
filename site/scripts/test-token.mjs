@@ -4,6 +4,7 @@ import {TokenProvider} from '../backend/providers.js';
 const config=JSON.parse(await readFile(new URL('../config.json',import.meta.url),'utf8'));
 config.tokenAddress='CbcyNo7m1amFWqEQm2m4PLv1UNvpcL3C1Ujm6AkzpKoU';
 config.solscanApiKey=process.env.SOLSCAN_API_KEY||'';
+config.heliusApiKey=process.env.HELIUS_API_KEY||'';config.holderProvider='helius';
 config.tokenDataUrl='';config.rpcUrl=process.env.SOLANA_RPC_URL||config.rpcUrl;
 const token=await new TokenProvider(config).get();
 await enrichHistory(token,config.tokenAddress);

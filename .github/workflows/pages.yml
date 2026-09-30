@@ -32,6 +32,7 @@ jobs:
         working-directory: site
         env:
           SOLSCAN_API_KEY: ${{ secrets.SOLSCAN_API_KEY }}
+          HELIUS_API_KEY: ${{ secrets.HELIUS_API_KEY }}
           SOLANA_RPC_URL: ${{ secrets.SOLANA_RPC_URL }}
           TOKEN_DATA_URL: ${{ secrets.TOKEN_DATA_URL }}
           FEE_INDEXER_URL: ${{ secrets.FEE_INDEXER_URL }}

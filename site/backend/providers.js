@@ -5,6 +5,44 @@ const positive = x => {const n=num(x);return n!=null&&n>=0?n:null;};
 const isAddress = x => typeof x==='string'&&/^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(x);
 async function json(url,options={}){const r=await fetch(url,{...options,signal:AbortSignal.timeout(15000),cache:'no-store'});if(!r.ok){const error=new Error('Data request failed');error.status=r.status;throw error;}return r.json();}
 export async function rpc(config,method,params){const result=await json(config.rpcUrl,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jsonrpc:'2.0',id:1,method,params})});if(result.error||!('result' in result))throw new Error('Solana RPC unavailable');return result.result;}
+const SYSTEM_PROGRAM='11111111111111111111111111111111';
+const BURN_ADDRESSES=new Set([SYSTEM_PROGRAM,'1nc1nerator11111111111111111111111111111111']);
+async function pumpfunHolders(data,config){
+ const result=await json('https://advanced-api-v2.pump.fun/coins/top-holders/'+encodeURIComponent(config.tokenAddress));
+ if(!Array.isArray(result.topHolders)||!Number.isSafeInteger(result.totalHolders)||result.totalHolders<result.topHolders.length)throw new Error('Invalid holder count');
+ data.holders=result.totalHolders;data.holdersSource='Pump.fun';data.holdersUpdatedAt=Date.now();data.holdersStatus='live';
+ const candidates=result.topHolders.filter(row=>isAddress(row?.address)&&positive(row?.amount)>0),supply=positive(data.totalSupply);
+ try{
+  const accounts=await rpc(config,'getMultipleAccounts',[candidates.map(row=>row.address),{encoding:'base64',commitment:'finalized'}]);
+  if(!Array.isArray(accounts?.value)||accounts.value.length!==candidates.length)throw new Error('Invalid account ownership response');
+  const wallets=candidates.filter((row,index)=>accounts.value[index]?.owner===SYSTEM_PROGRAM&&!accounts.value[index].executable&&!BURN_ADDRESSES.has(row.address));
+  data.topHolders=wallets.slice(0,10).map(row=>({address:row.address,amount:positive(row.amount),percentage:supply>0?positive(row.amount)/supply*100:null}));data.topHoldersStatus='verified-wallets';data.topHoldersExcluded=candidates.length-wallets.length;
+ }catch{data.topHolders=[];data.topHoldersStatus='unavailable';}
+ return data;
+}
+async function heliusHolders(data,config){
+ const endpoint=new URL('https://mainnet.helius-rpc.com/');endpoint.searchParams.set('api-key',config.heliusApiKey);
+ const balances=new Map();let accountCount=0;
+ for(let page=1;page<=100;page++){
+  const response=await json(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jsonrpc:'2.0',id:'holders',method:'getTokenAccounts',params:{mint:config.tokenAddress,page,limit:1000,displayOptions:{}}})});
+  const rows=response?.result?.token_accounts;if(!Array.isArray(rows))throw new Error('Invalid Helius response');
+  if(rows.length===0)break;
+  for(const row of rows){const amount=positive(row?.amount);if(isAddress(row?.owner)&&amount>0){balances.set(row.owner,(balances.get(row.owner)||0)+amount);accountCount++;}}
+  if(rows.length<1000)break;if(page===100)throw new Error('Helius pagination limit reached');
+ }
+ const owners=[...balances.keys()],wallets=[];
+ const rpcConfig={...config,rpcUrl:endpoint.toString()};
+ for(let offset=0;offset<owners.length;offset+=100){
+  const group=owners.slice(offset,offset+100),accounts=await rpc(rpcConfig,'getMultipleAccounts',[group,{encoding:'base64',commitment:'finalized'}]);
+  if(!Array.isArray(accounts?.value)||accounts.value.length!==group.length)throw new Error('Invalid account ownership response');
+  group.forEach((owner,index)=>{const account=accounts.value[index];if(account?.owner===SYSTEM_PROGRAM&&!account.executable&&!BURN_ADDRESSES.has(owner))wallets.push(owner);});
+ }
+ const decimals=Number.isInteger(config.tokenDecimals)&&config.tokenDecimals>=0?config.tokenDecimals:0,scale=10**decimals,supply=positive(data.totalSupply);
+ const ranked=wallets.map(address=>({address,amount:balances.get(address)/scale})).filter(row=>Number.isFinite(row.amount)&&row.amount>0).sort((a,b)=>b.amount-a.amount);
+ data.holders=ranked.length;data.holdersSource='Helius · filtered wallets';data.holdersUpdatedAt=Date.now();data.holdersStatus='live';
+ data.topHolders=ranked.slice(0,10).map(row=>({...row,percentage:supply>0?row.amount/supply*100:null}));data.topHoldersStatus='verified-wallets';data.topHoldersExcluded=balances.size-ranked.length;data.holderTokenAccounts=accountCount;
+ return data;
+}
 export function normalizeToken(input){
  const result=structuredClone(EMPTY_TOKEN);
  for(const key of ['price','marketCap','liquidity','volume24h','holders','totalSupply'])result[key]=positive(input[key]);
@@ -15,20 +53,12 @@ export function normalizeToken(input){
  result.status='live';result.source=typeof input.source==='string'?input.source:'Configured data provider';result.updatedAt=Date.now();return result;
 }
 export async function enrichHolders(data,config){
+ if(config.holderProvider==='helius'){
+  if(config.heliusApiKey){try{return await heliusHolders(data,config);}catch(error){console.warn('Helius holder lookup failed:',Number.isInteger(error.status)?'HTTP '+error.status:'invalid response or connection failure');}}
+  try{return await pumpfunHolders(data,config);}catch{data.holdersStatus=config.heliusApiKey?'unavailable':'not-configured';return data;}
+ }
  if(config.holderProvider==='pumpfun'){
- try{
- const result=await json('https://advanced-api-v2.pump.fun/coins/top-holders/'+encodeURIComponent(config.tokenAddress));
- if(!Array.isArray(result.topHolders)||!Number.isSafeInteger(result.totalHolders)||result.totalHolders<result.topHolders.length)throw new Error('Invalid holder count');
- data.holders=result.totalHolders;data.holdersSource='Pump.fun';data.holdersUpdatedAt=Date.now();data.holdersStatus='live';
- const candidates=result.topHolders.filter(row=>isAddress(row?.address)&&positive(row?.amount)>0),supply=positive(data.totalSupply);
- try{
-  const accounts=await rpc(config,'getMultipleAccounts',[candidates.map(row=>row.address),{encoding:'base64',commitment:'finalized'}]);
-  if(!Array.isArray(accounts?.value)||accounts.value.length!==candidates.length)throw new Error('Invalid account ownership response');
-  const wallets=candidates.filter((row,index)=>accounts.value[index]?.owner==='11111111111111111111111111111111'&&!accounts.value[index].executable);
-  data.topHolders=wallets.slice(0,10).map(row=>({address:row.address,amount:positive(row.amount),percentage:supply>0?positive(row.amount)/supply*100:null}));data.topHoldersStatus='verified-wallets';data.topHoldersExcluded=candidates.length-wallets.length;
- }catch{data.topHolders=[];data.topHoldersStatus='unavailable';}
- }catch{data.holdersStatus='unavailable';}
- return data;
+ try{return await pumpfunHolders(data,config);}catch{data.holdersStatus='unavailable';return data;}
  }
 
  if(!config.solscanApiKey){data.holdersStatus='not-configured';return data;}
@@ -54,8 +84,8 @@ export class TokenProvider{
    if(!pair)return structuredClone(EMPTY_TOKEN);
    const data=normalizeToken({price:pair.priceUsd,priceChange24h:pair.priceChange?.h24,marketCap:pair.marketCap,liquidity:pair.liquidity?.usd,volume24h:pair.volume?.h24,activity:{buys:pair.txns?.h24?.buys,sells:pair.txns?.h24?.sells},source:'DEX Screener · highest-liquidity pool'});
    // Supply is optional: an unavailable RPC must not discard valid market data.
-   try{const supply=await rpc(c,'getTokenSupply',[c.tokenAddress,{commitment:'finalized'}]);data.totalSupply=positive(supply.value.uiAmountString);}catch{}
-   return enrichHolders(data,c);
+   let tokenDecimals=null;try{const supply=await rpc(c,'getTokenSupply',[c.tokenAddress,{commitment:'finalized'}]);data.totalSupply=positive(supply.value.uiAmountString);tokenDecimals=Number(supply.value.decimals);}catch{}
+   return enrichHolders(data,{...c,tokenDecimals});
  }catch{return {...structuredClone(EMPTY_TOKEN),status:'error'};}}
 }
 const emptyFees = (c,status='pending',note='') => ({status,recipientAddress:c.fee.recipientAddress,recipientName:c.fee.recipientName,totalTokenFees:null,totalUsdValue:null,transactionCount:null,fees24h:null,fees7d:null,fees30d:null,transactions:[],assetTotals:[],lastTransaction:null,note});

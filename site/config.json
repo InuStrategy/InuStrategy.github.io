@@ -36,5 +36,5 @@
     "explorerAddressUrl": "",
     "displayLabel": "Fees Distributed to Holders"
   },
-  "holderProvider": "pumpfun"
+  "holderProvider": "helius"
 }

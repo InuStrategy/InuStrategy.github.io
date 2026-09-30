@@ -32,3 +32,18 @@ test('Pump.fun uses totalHolders rather than top-holder list length',async()=>{
  }finally{globalThis.fetch=original;}
 });
 test('Pump.fun top holder list excludes program-owned and unresolved addresses',async()=>{const original=globalThis.fetch;const wallet='5pHeNsWMVEi1cbMzLhgqABnhEUwRTSzy5vBfeGWyJfxS',pool='4fvH46ajCnwsDxcdr9LWMMB4BfPnxtk8KLof9bTrBp9K',unknown='DZZVfvX7qyW468KgLa1mS5bdDunAoMq2JXPqHi2HjAvR';try{globalThis.fetch=async url=>({ok:true,json:async()=>String(url).includes('pump.fun')?{topHolders:[{address:pool,amount:500},{address:wallet,amount:250},{address:unknown,amount:100}],totalHolders:20}:{result:{value:[{owner:'LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo',executable:false},{owner:'11111111111111111111111111111111',executable:false},null]}}});const data=await enrichHolders({totalSupply:1000},{...config,holderProvider:'pumpfun'});assert.deepEqual(data.topHolders,[{address:wallet,amount:250,percentage:25}]);assert.equal(data.topHoldersExcluded,2);}finally{globalThis.fetch=original;}});
+
+test('Helius paginates, aggregates token accounts by owner, and filters program accounts',async()=>{
+ const original=globalThis.fetch,wallet='5pHeNsWMVEi1cbMzLhgqABnhEUwRTSzy5vBfeGWyJfxS',pool='4fvH46ajCnwsDxcdr9LWMMB4BfPnxtk8KLof9bTrBp9K';let pages=0;
+ try{
+  globalThis.fetch=async(url,options)=>{const body=JSON.parse(options.body);
+   if(body.method==='getTokenAccounts'){pages++;const filler=Array.from({length:999},()=>({owner:'bad',amount:'0'}));return {ok:true,json:async()=>({result:{token_accounts:pages===1?[...filler,{owner:wallet,amount:'100'}]:pages===2?[{owner:wallet,amount:'50'},{owner:pool,amount:'400'}]:[]}})};}
+   assert.equal(body.method,'getMultipleAccounts');return {ok:true,json:async()=>({result:{value:[{owner:'11111111111111111111111111111111',executable:false},{owner:'LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo',executable:false}]}})};
+  };
+  const data=await enrichHolders({totalSupply:10},{...config,holderProvider:'helius',heliusApiKey:'secret-test-key',tokenDecimals:2,rpcUrl:'https://api.mainnet-beta.solana.com'});
+  assert.equal(pages,2);assert.equal(data.holders,1);assert.equal(data.holdersSource,'Helius · filtered wallets');assert.equal(data.topHoldersExcluded,1);assert.equal(data.holderTokenAccounts,3);
+  assert.deepEqual(data.topHolders,[{address:wallet,amount:1.5,percentage:15}]);assert.equal(JSON.stringify(data).includes('secret-test-key'),false);
+ }finally{globalThis.fetch=original;}
+});
+
+test('Helius failure falls back to Pump.fun without erasing market data',async()=>{const original=globalThis.fetch;try{globalThis.fetch=async url=>{if(String(url).includes('helius'))throw new Error('rate limited');return {ok:true,json:async()=>({topHolders:[],totalHolders:42})};};const data=await enrichHolders({price:3,totalSupply:100},{...config,holderProvider:'helius',heliusApiKey:'secret'});assert.equal(data.price,3);assert.equal(data.holders,42);assert.equal(data.holdersSource,'Pump.fun');}finally{globalThis.fetch=original;}});

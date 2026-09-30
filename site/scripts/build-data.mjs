@@ -8,6 +8,7 @@ if(config.chain!=='solana')throw new Error('Only Solana is configured');
 config.tokenAddress=process.env.TOKEN_CA||config.tokenAddress;
 config.rpcUrl=process.env.SOLANA_RPC_URL||config.rpcUrl;
 config.solscanApiKey=process.env.SOLSCAN_API_KEY||'';
+config.heliusApiKey=process.env.HELIUS_API_KEY||'';
 config.tokenDataUrl=process.env.TOKEN_DATA_URL||config.tokenDataUrl;
 config.fee.indexerUrl=process.env.FEE_INDEXER_URL||config.fee.indexerUrl;
 config.fee.recipientAddress=process.env.FEE_RECIPIENT||config.fee.recipientAddress;
