@@ -1,6 +1,6 @@
 import {startMarketRefresh} from './live-market.js?v=activity-fallback-2';
 import {setupTabs} from './tabs.js?v=allocation-placement-1';
-import {loadChartHistory} from './live-history.js?v=all-ranges-1';
+import {loadChartHistory} from './live-history.js?v=resilient-cache-1';
 const $ = s => document.querySelector(s);
 const compact = v => v == null ? '—' : Intl.NumberFormat('en-US',{notation:'compact',maximumFractionDigits:2}).format(v);
 const usd = v => v == null ? '—' : Intl.NumberFormat('en-US',{style:'currency',currency:'USD',maximumFractionDigits:2}).format(v);

@@ -9,3 +9,9 @@ test('chart history validates candles and maps every requested range',async()=>{
 });
 
 test('candle parser rejects invalid values',()=>{assert.deepEqual(parseCandles([[1,0,0,0,-1,2],[2,0,0,0,1,-2],null]),[]);});
+
+test('chart history reuses the last good browser cache',async()=>{
+ const originalFetch=globalThis.fetch,originalStorage=globalThis.localStorage,store=new Map();globalThis.localStorage={getItem:key=>store.get(key)||null,setItem:(key,value)=>store.set(key,value)};let calls=0;
+ globalThis.fetch=async()=>{calls++;return {ok:true,json:async()=>calls===1?{data:[{attributes:{address:'pool',reserve_in_usd:'10'},relationships:{base_token:{data:{id:'solana_cached'}}}}]}:{meta:{base:{address:'cached'}},data:{attributes:{ohlcv_list:[[1,0,0,0,1,10]]}}}};};
+ try{const first=await loadChartHistory('cached'),afterFirst=calls,second=await loadChartHistory('cached');assert.equal(afterFirst,5);assert.equal(calls,afterFirst);assert.deepEqual(second,first);}finally{globalThis.fetch=originalFetch;if(originalStorage===undefined)delete globalThis.localStorage;else globalThis.localStorage=originalStorage;}
+});
