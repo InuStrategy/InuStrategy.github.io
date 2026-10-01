@@ -7,7 +7,7 @@ export function setupTabs(onChange){
  panels.forEach((p,i)=>{p.classList.add('tab-panel');p.setAttribute('role','tabpanel');p.setAttribute('aria-labelledby','tab-'+ids[i]);p.id=i===0?'overview-panel':ids[i];stage.append(p);});
  const links=[...document.querySelectorAll('#navigation a')];document.getElementById('navigation').setAttribute('role','tablist');
  let active=Math.max(0,ids.indexOf(location.hash.slice(1))),busy=false,pending=null;
- function mark(){panels.forEach((p,i)=>{p.hidden=i!==active;});links.forEach((a,i)=>{a.classList.toggle('active',i===active);a.setAttribute('aria-selected',String(i===active));a.tabIndex=i===active?0:-1;});document.title=`${titles[active]} · InuStrategy`;}
+ function mark(){panels.forEach((p,i)=>{p.hidden=i!==active;});links.forEach((a,i)=>{a.classList.toggle('active',i===active);a.setAttribute('aria-selected',String(i===active));a.tabIndex=i===active?0:-1;});document.title=`INSTR ${titles[active]} - InuStrategy`;}
  async function select(next){if(busy){pending=next;return;}if(next===active)return;busy=true;const old=panels[active],incoming=panels[next],right=next>active;const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
  if(!reduced){old.classList.add('is-moving',right?'exit-left':'exit-right');await new Promise(r=>setTimeout(r,180));}
  old.hidden=true;old.classList.remove('is-moving','exit-left','exit-right');active=next;mark();

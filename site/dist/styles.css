@@ -36,6 +36,7 @@
 
 /* Keep the Fees tab focused on its verified summary. */
 .fee-section>.table-top,.fee-section>.table-scroll,.fee-section>.fine-print,.fee-section>.asset-totals{display:none}
+body{min-height:100vh;display:flex;flex-direction:column}body>main{flex:1;width:100%;margin:0 auto}body>footer{flex-shrink:0;width:min(1336px,100%);margin:0 auto}
 /* Match the Fees summary to the Overview metric panel. */
 .fee-section{border:0;border-radius:0;background:transparent;padding:21px 0 0}
 .fee-section .section-top{margin-bottom:17px}
