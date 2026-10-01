@@ -36,3 +36,10 @@
 
 /* Keep the Fees tab focused on its verified summary. */
 .fee-section>.table-top,.fee-section>.table-scroll,.fee-section>.fine-print,.fee-section>.asset-totals{display:none}
+/* Match the Fees summary to the Overview metric panel. */
+.fee-section{border:0;border-radius:0;background:transparent;padding:21px 0 0}
+.fee-section .section-top{margin-bottom:17px}
+.fee-summary{background:var(--panel);border:1px solid #454749;border-radius:6px;padding:19px 22px;box-shadow:0 8px 18px #0002;align-items:center}
+.recipient-line{border:0;padding:10px 0 22px}
+@media(max-width:800px){.fee-section{padding:18px 0 0}.fee-summary{padding:18px}}
+@media(max-width:550px){.fee-section{padding:18px 0 0}.fee-summary{padding:14px}}
