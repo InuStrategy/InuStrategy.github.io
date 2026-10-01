@@ -1,13 +1,13 @@
 // DOM order is the source of truth for left/right movement.
 export function setupTabs(onChange){
- const ids=['overview','performance','holders','fees','media'];const main=document.querySelector('main');
+ const ids=['overview','performance','holders','fees','media'],titles=['Overview','Performance','Holders','Fees','Media'];const main=document.querySelector('main');
  const holder=document.createElement('section');holder.id='holders';holder.innerHTML='<div class="eyebrow">TOKEN OWNERSHIP</div><h2>Holders</h2><div class="holder-total" id="holder-total">—</div><p id="holder-detail">Awaiting token launch.</p><div class="table-scroll holder-table"><table><thead><tr><th>Rank</th><th>Verified wallet</th><th>Balance</th><th>% Supply</th></tr></thead><tbody id="holder-rows"><tr><td colspan="4" class="empty-row">Holder distribution will appear when available.</td></tr></tbody></table></div><p class="fine-print">Top wallet holders reported by Pump.fun and verified through Solana account ownership. Liquidity pools, executable programs, program-owned accounts, and unverified addresses are excluded. The total above is Pump.fun’s reported holder-account count.</p>';main.append(holder);
  const overview=document.createElement('div');overview.id='overview-panel';for(const id of ['overview','meme-metrics','allocation-note'])overview.append(document.getElementById(id));
  const panels=[overview,...ids.slice(1).map(id=>document.getElementById(id))];const stage=document.createElement('div');stage.className='tab-stage';main.append(stage);
  panels.forEach((p,i)=>{p.classList.add('tab-panel');p.setAttribute('role','tabpanel');p.setAttribute('aria-labelledby','tab-'+ids[i]);p.id=i===0?'overview-panel':ids[i];stage.append(p);});
  const links=[...document.querySelectorAll('#navigation a')];document.getElementById('navigation').setAttribute('role','tablist');
  let active=Math.max(0,ids.indexOf(location.hash.slice(1))),busy=false,pending=null;
- function mark(){panels.forEach((p,i)=>{p.hidden=i!==active;});links.forEach((a,i)=>{a.classList.toggle('active',i===active);a.setAttribute('aria-selected',String(i===active));a.tabIndex=i===active?0:-1;});}
+ function mark(){panels.forEach((p,i)=>{p.hidden=i!==active;});links.forEach((a,i)=>{a.classList.toggle('active',i===active);a.setAttribute('aria-selected',String(i===active));a.tabIndex=i===active?0:-1;});document.title=`${titles[active]} · InuStrategy`;}
  async function select(next){if(busy){pending=next;return;}if(next===active)return;busy=true;const old=panels[active],incoming=panels[next],right=next>active;const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
  if(!reduced){old.classList.add('is-moving',right?'exit-left':'exit-right');await new Promise(r=>setTimeout(r,180));}
  old.hidden=true;old.classList.remove('is-moving','exit-left','exit-right');active=next;mark();
