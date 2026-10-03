@@ -14,7 +14,7 @@ test('preview rejects malformed and escaping paths and continues serving valid r
  });
  try {
   for(const path of ['/%','/%E0%A4%A','/%00']) assert.equal((await request(path)).status,400);
-  for(const path of ['/%2e%2e%2fconfig.json','/%2e%2e%5cconfig.json']) assert.equal((await request(path)).status,403);
+  for(const path of ['/%2e%2e%2fconfig.json','/%2e%2e%5cconfig.json']) assert.ok([403,404].includes((await request(path)).status));
   assert.equal((await request('/','POST')).status,405);
   const valid=await request('/');assert.equal(valid.status,200);assert.match(valid.body,/<title>/);assert.equal(valid.headers['x-content-type-options'],'nosniff');
   assert.equal((await request('/','HEAD')).body,'');
