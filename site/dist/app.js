@@ -1,4 +1,4 @@
-import {startMarketRefresh} from './live-market.js?v=activity-fallback-2';
+import {startMarketRefresh} from './live-market.js?v=security-1';
 import {setupTabs} from './tabs.js?v=brand-notice-1';
 import {loadChartHistory} from './live-history.js?v=resilient-cache-1';
 const $ = s => document.querySelector(s);
@@ -40,7 +40,7 @@ $('#menu').addEventListener('click',()=>{const open=$('#navigation').classList.t
 $('#navigation').addEventListener('click',e=>{if(e.target.closest('a'))closeMenu();});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeMenu();hovered=-1;$('#chart-tooltip').hidden=true;drawChart();}});
 const xFeed=$('#x-feed'),xFeedToggle=$('#x-feed-toggle');function setXFeed(collapsed){xFeed.classList.toggle('collapsed',collapsed);xFeedToggle.setAttribute('aria-expanded',String(!collapsed));xFeedToggle.setAttribute('aria-label',collapsed?'Expand X feed':'Collapse X feed');xFeedToggle.textContent=collapsed?'≪':'≫';try{localStorage.setItem('inu-x-feed',collapsed?'collapsed':'open');}catch{}}xFeedToggle.addEventListener('click',()=>setXFeed(!xFeed.classList.contains('collapsed')));try{setXFeed(localStorage.getItem('inu-x-feed')==='collapsed');}catch{setXFeed(false);}
-function loadXTimeline(){if(location.hash==='#media'&&window.twttr?.widgets)window.twttr.widgets.load(document.getElementById('x-feed-body'));}addEventListener('load',loadXTimeline);
+
 document.querySelectorAll('[data-range]').forEach(b=>{b.setAttribute('aria-pressed',String(b.dataset.range===range));b.addEventListener('click',()=>{range=b.dataset.range;document.querySelectorAll('[data-range]').forEach(x=>{x.classList.toggle('selected',x===b);x.setAttribute('aria-pressed',String(x===b));});hovered=-1;$('#chart-tooltip').hidden=true;drawChart();});});
 document.querySelectorAll('[data-chart-mode]').forEach(b=>b.addEventListener('click',()=>{chartMode=b.dataset.chartMode;document.querySelectorAll('[data-chart-mode]').forEach(x=>{x.classList.toggle('selected',x===b);x.setAttribute('aria-pressed',String(x===b));});hovered=-1;$('#chart-tooltip').hidden=true;drawChart();}));
 function renderToken(data){
@@ -62,7 +62,7 @@ function renderToken(data){
 }
 function renderDistributions(data){
  distributions=data;const sender=simulation?(data.senderAddress||''):config.distribution.senderAddress,configured=simulation?data.status==='verified':Boolean(sender),label=data.displayLabel||config.distribution.displayLabel||'Fees Distributed to Holders';text('#fee-title',label);
- text('#recipient',simulation?`Reward source · ${data.source||'StonkFun public API'}`:configured?`Distribution wallet · ${sender}`:'Awaiting distribution wallet configuration');text('#fee-status',data.status==='verified'?(simulation?'VERIFIED REWARD DATA':'VERIFIED ON SOLANA'):data.status==='error'?'DATA UNAVAILABLE':configured?'VERIFICATION PENDING':'AWAITING DISTRIBUTION WALLET');
+ const verifiedLabel=simulation&&data.verifiedAt?` · Verified ${new Date(data.verifiedAt).toLocaleString()}`:'';text('#recipient',simulation?`Reward source · ${data.source||'StonkFun public API'}${verifiedLabel}`:configured?`Distribution wallet · ${sender}`:'Awaiting distribution wallet configuration');text('#fee-status',data.status==='verified'?(simulation?'VERIFIED REWARD DATA':'VERIFIED ON SOLANA'):data.status==='error'?'DATA UNAVAILABLE':configured?'VERIFICATION PENDING':'AWAITING DISTRIBUTION WALLET');
  text('#fee-total-btc',simulation?(data.totalAmount==null?'—':data.totalAmount.toLocaleString(undefined,{maximumFractionDigits:2})+' '+data.assetSymbol):bitcoin(data.totalBtcValue));text('#fee-total',usd(data.totalUsdValue));text('#distribution-total-unit',simulation?`· ${data.assetSymbol||'REWARD'} / USD`:'· BTC / USD');text('#fee-count',data.transactionCount==null?'—':data.transactionCount.toLocaleString());text('#fee-last',data.lastDistribution?new Date(data.lastDistribution.timestamp).toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'}):'—');text('#fee-day',usd(data.distributed24h));text('#distribution-asset',data.assetSymbol||'—');text('#fee-note',data.note||'Only finalized transfers from the configured distribution wallet are counted.');
  const receiverRows=(data.topReceivers||[]).map((receiver,index)=>{const tr=document.createElement('tr'),rank=document.createElement('td');rank.textContent=String(index+1);const wallet=document.createElement('td'),link=document.createElement('a');link.href='https://solscan.io/account/'+encodeURIComponent(receiver.address);link.target='_blank';link.rel='noopener noreferrer';link.textContent=receiver.address.slice(0,5)+'…'+receiver.address.slice(-5)+' ↗';wallet.append(link);tr.append(rank,wallet);for(const value of [receiver.amount.toLocaleString(undefined,{maximumFractionDigits:8})+' '+data.assetSymbol,receiver.usdValue==null?'Unpriced':usd(receiver.usdValue),receiver.percentage==null?'—':receiver.percentage.toFixed(2)+'%']){const td=document.createElement('td');td.textContent=value;tr.append(td);}return tr;});
  if(!receiverRows.length){const tr=document.createElement('tr'),td=document.createElement('td');td.colSpan=5;td.className='empty-row';td.textContent=data.status==='error'?'Distribution leaderboard is temporarily unavailable.':simulation?'Receiver leaderboard is not included in StonkFun’s per-token public summary.':'No verified holder distributions yet.';tr.append(td);receiverRows.push(tr);}$('#receiver-rows').replaceChildren(...receiverRows);
@@ -85,7 +85,7 @@ $('#chart').addEventListener('pointermove',e=>{if(!chartPoints.length)return;con
 $('#chart').addEventListener('pointerleave',()=>{hovered=-1;$('#chart-tooltip').hidden=true;drawChart();});$('#chart').addEventListener('keydown',e=>{if(!chartPoints.length||!['ArrowLeft','ArrowRight','Home','End'].includes(e.key))return;e.preventDefault();hovered=e.key==='Home'?0:e.key==='End'?chartPoints.length-1:Math.max(0,Math.min(chartPoints.length-1,hovered+(e.key==='ArrowRight'?1:-1)));drawChart();});
 
 new ResizeObserver(()=>drawChart()).observe($('#chart'));text('#year',new Date().getFullYear());
-setupTabs(()=>{hovered=-1;$('#chart-tooltip').hidden=true;drawChart();loadXTimeline();});
+setupTabs(()=>{hovered=-1;$('#chart-tooltip').hidden=true;drawChart();});
 const periods=$('.periods');$('#performance').append(periods);
 const stats=document.createElement('div');stats.id='performance-stats';stats.className='performance-stats';$('#performance').append(stats);
 async function refresh(){if(polling||document.hidden)return;polling=true;try{

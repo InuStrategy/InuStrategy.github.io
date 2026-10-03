@@ -27,7 +27,7 @@ export async function getStonkfunRewards(mint,{fetchImpl=fetch}={}){
  const pair=Array.isArray(pairs)?pairs.filter(row=>row?.chainId==='solana'&&row?.baseToken?.address===mint&&row?.quoteToken?.address===quote.mint).sort((a,b)=>(b?.liquidity?.usd||0)-(a?.liquidity?.usd||0))[0]:null;
  const tokenUsd=nonnegative(pair?.priceUsd),tokenQuote=nonnegative(pair?.priceNative),quoteUsd=tokenUsd!==null&&tokenQuote>0?tokenUsd/tokenQuote:null,totalUsdValue=quoteUsd===null?null:distributed*quoteUsd;
  return {
-  status:'verified',displayLabel:'Super Inu Holder Rewards · Test',senderAddress:'',assetMint:quote.mint,assetSymbol:quote.symbol.trim(),
+  status:'verified',verifiedAt:new Date().toISOString(),displayLabel:'Super Inu Holder Rewards · Test',senderAddress:'',assetMint:quote.mint,assetSymbol:quote.symbol.trim(),
   totalAmount:distributed,totalUsdValue,totalBtcValue:null,transactionCount:payoutCount,uniqueRecipients:holderCount,distributed24h:null,distributed7d:null,
   undistributedAmount:undistributed,transferFeeBps:nonnegative(token?.transferFee?.bps),transactions:[],topReceivers:[],
   lastDistribution:{timestamp:lastTimestamp,amount:null,asset:quote.symbol.trim(),usdValue:null,txHash:'',recipient:''},

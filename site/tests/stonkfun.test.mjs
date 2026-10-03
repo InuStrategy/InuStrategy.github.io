@@ -8,7 +8,7 @@ const fetchImpl=async url=>url.endsWith('/rewards')?response({mint,distributedTo
 
 test('maps verified StonkFun lifetime rewards and quote value',async()=>{
  const result=await getStonkfunRewards(mint,{fetchImpl});
- assert.equal(result.status,'verified');assert.equal(result.totalAmount,8000);assert.equal(result.totalUsdValue,9120);assert.equal(result.transactionCount,2000000);assert.equal(result.uniqueRecipients,46000);assert.equal(result.assetSymbol,'NVDAX');assert.equal(result.distributed24h,null);assert.deepEqual(result.topReceivers,[]);
+ assert.equal(result.status,'verified');assert.ok(Number.isFinite(Date.parse(result.verifiedAt)));assert.equal(result.totalAmount,8000);assert.equal(result.totalUsdValue,9120);assert.equal(result.transactionCount,2000000);assert.equal(result.uniqueRecipients,46000);assert.equal(result.assetSymbol,'NVDAX');assert.equal(result.distributed24h,null);assert.deepEqual(result.topReceivers,[]);
 });
 
 test('withholds USD totals when the quote asset has no priced pool',async()=>{
