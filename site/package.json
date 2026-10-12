@@ -7,5 +7,8 @@
     "build": "node scripts/build-data.mjs",
     "test": "node --test --test-isolation=none tests/*.test.mjs",
     "check": "node --check dist/app.js && node --check backend/icp.js && node --check scripts/build-data.mjs && node --check scripts/test-token.mjs && node --check server.mjs && node --check dist/theme-init.js && node --check dist/tabs.js && node --check dist/secondary.js"
+  },
+  "dependencies": {
+    "@icp-sdk/core": "^6.1.1"
   }
 }

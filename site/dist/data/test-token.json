@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-12T19:27:25.775Z",
+  "generatedAt": "2026-10-12T19:34:48.270Z",
   "config": {
     "name": "Soon",
     "symbol": "SOON",
@@ -19,29 +19,171 @@
     }
   },
   "token": {
-    "status": "indexed",
-    "price": null,
-    "priceChange24h": null,
-    "return7d": null,
-    "return30d": null,
-    "marketCap": null,
-    "liquidity": null,
-    "volume24h": null,
+    "status": "live",
+    "price": 0.0002841111874174,
+    "priceChange24h": 183.86695683869752,
+    "return7d": 264.73475061593075,
+    "return30d": 264.73475061593075,
+    "marketCap": 147016.17495344474,
+    "liquidity": 66305.65623800068,
+    "volume24h": 128424.35810642099,
     "holders": null,
     "holdersSource": "ICP ICRC API",
     "holdersStatus": "indexing",
-    "holdersUpdatedAt": 1791833245775,
-    "totalSupply": null,
+    "holdersUpdatedAt": 1791833685959,
+    "totalSupply": 517459999.6918,
     "activity": {
       "buys": null,
       "sells": null
     },
-    "metrics": {},
+    "metrics": {
+      "trades24h": 1927,
+      "totalCurveTrades": 203,
+      "curveTraders": 55
+    },
     "topHolders": [],
-    "history": [],
+    "history": [
+      {
+        "timestamp": 1791741676000,
+        "price": 0.00007755212876691462,
+        "volume": 7046.43407344898
+      },
+      {
+        "timestamp": 1791745295000,
+        "price": 0.00009874894636032944,
+        "volume": 4205.242109732941
+      },
+      {
+        "timestamp": 1791748823000,
+        "price": 0.00009964511777116828,
+        "volume": 6396.517732810797
+      },
+      {
+        "timestamp": 1791752476000,
+        "price": 0.0001152812603998926,
+        "volume": 4063.3073606435596
+      },
+      {
+        "timestamp": 1791756034000,
+        "price": 0.00013298503121725015,
+        "volume": 3236.612983994004
+      },
+      {
+        "timestamp": 1791759619000,
+        "price": 0.00014743835887312185,
+        "volume": 1837.3631185579507
+      },
+      {
+        "timestamp": 1791762891000,
+        "price": 0.00015355099072009404,
+        "volume": 1825.1133249468778
+      },
+      {
+        "timestamp": 1791766034000,
+        "price": 0.00015375465189922482,
+        "volume": 567.8767506646908
+      },
+      {
+        "timestamp": 1791770179000,
+        "price": 0.00015544635586326448,
+        "volume": 2047.6597348170017
+      },
+      {
+        "timestamp": 1791773505000,
+        "price": 0.00016220535343137253,
+        "volume": 2041.35814376215
+      },
+      {
+        "timestamp": 1791777675000,
+        "price": 0.0001640348701372277,
+        "volume": 466.6929587513224
+      },
+      {
+        "timestamp": 1791781199000,
+        "price": 0.00014962352700888988,
+        "volume": 1601.3128039017456
+      },
+      {
+        "timestamp": 1791784724000,
+        "price": 0.00013739566896,
+        "volume": 1747.188488473311
+      },
+      {
+        "timestamp": 1791788415000,
+        "price": 0.00013517194266876727,
+        "volume": 701.7580443912922
+      },
+      {
+        "timestamp": 1791792096000,
+        "price": 0.00016389213524968378,
+        "volume": 3022.4981714848714
+      },
+      {
+        "timestamp": 1791795613000,
+        "price": 0.0001993956894078385,
+        "volume": 3868.882449981414
+      },
+      {
+        "timestamp": 1791799239000,
+        "price": 0.00021638268718130452,
+        "volume": 2322.9168775833205
+      },
+      {
+        "timestamp": 1791802769000,
+        "price": 0.0002482307425664005,
+        "volume": 4752.871102727973
+      },
+      {
+        "timestamp": 1791806474000,
+        "price": 0.0002288700222371871,
+        "volume": 6901.414907572347
+      },
+      {
+        "timestamp": 1791810062000,
+        "price": 0.00023572812659772245,
+        "volume": 17521.060122984596
+      },
+      {
+        "timestamp": 1791813683000,
+        "price": 0.00028436226137299646,
+        "volume": 9584.603605394297
+      },
+      {
+        "timestamp": 1791817188000,
+        "price": 0.00027585026501882303,
+        "volume": 9869.330152276938
+      },
+      {
+        "timestamp": 1791820851000,
+        "price": 0.00027819415053900005,
+        "volume": 11175.026829243301
+      },
+      {
+        "timestamp": 1791824451000,
+        "price": 0.00032030190946902656,
+        "volume": 17273.07573254417
+      },
+      {
+        "timestamp": 1791828085000,
+        "price": 0.0003252469971866667,
+        "volume": 5402.837994054719
+      },
+      {
+        "timestamp": 1791831664000,
+        "price": 0.0002949336036883562,
+        "volume": 11574.052397852709
+      },
+      {
+        "timestamp": 1791833458000,
+        "price": 0.00028285956345535155,
+        "volume": 2215.9295218313505
+      }
+    ],
     "historyByRange": {},
-    "historySource": "",
-    "source": "Soon test canisters connected · ICRC index pending",
-    "updatedAt": 1791833245263
+    "historySource": "ICPSwap",
+    "source": "ICPSwap public market API · Soon pool",
+    "updatedAt": 1791833688269,
+    "poolCanisterId": "hcju7-naaaa-aaaar-qch3a-cai",
+    "launchPhase": "ICPSwap"
   }
 }
