@@ -1,127 +1,43 @@
-# InuStrategy
+# InuStrategy site
 
-A single-page Solana meme dashboard with a black default theme, a persistent light-mode toggle, an orange brand header, compact financial metrics, verified holder-distribution accounting, and clearly labeled meme statistics. Treasury and Tokenomics sections have been removed.
+A static analytics dashboard for the InuStrategy token on the Internet Computer. Production stays in an explicit prelaunch state until the official canister IDs are configured. Test mode uses the public Soon token solely to validate the ICP integration.
 
-## Local preview
-
-Requires Node.js 24. No dependencies or install step.
+## Local validation
 
 ```powershell
 cd site
+npm test
+npm run check
 npm run build
-npm start
+node scripts/test-token.mjs
 ```
 
-Open http://127.0.0.1:4173. `npm test` runs the accounting tests; `npm run check` checks JavaScript syntax.
+Run `npm start` to preview `site/dist` locally. Test mode is available at `http://localhost:4173/index.html?mode=test`.
 
-## GitHub Pages
+## ICP configuration
 
-The repository-root `.github/workflows/pages.yml` builds and deploys `site/dist` on pushes to `main`, manual runs, and a five-minute schedule. Enable **Settings → Pages → Build and deployment → GitHub Actions**. The initial version is a fully styled pre-launch page; no token or fee values are invented.
+Production reads these GitHub Actions repository variables:
 
-The requested destination is the InuStrategy GitHub account. An account-level Pages repository would normally be named `InuStrategy.github.io`; a project repository also works because all frontend asset and data paths are relative. Creating or publishing in that account requires an authenticated account with repository access.
+| Variable | Purpose |
+| --- | --- |
+| `ICP_LEDGER_CANISTER_ID` | Official ICRC token ledger and public contract ID |
+| `ICP_MARKET_CANISTER_ID` | Soon launch-curve market canister |
+| `ICP_POOL_CANISTER_ID` | ICPSwap pool canister after listing |
 
-Scheduled GitHub Actions can be delayed and are not a real-time feed. Public repository schedules may be disabled after prolonged inactivity. The frontend checks the published snapshot every 30 seconds and hides live values if its timestamp is older than 20 minutes. No exchange-rate refresh occurs inside the visitor's browser.
+The ledger and market IDs are different. The Soon token-page URL contains the market canister ID; it must never be used as the token contract.
 
-## Trusted data architecture
+Test mode currently uses:
 
-```
-Solana RPC / configured trusted indexer
-                ↓
-GitHub Actions build worker
-    token verification + normalized accounting
-                ↓
-Read-only data/snapshot.json on GitHub Pages
-                ↓
-Frontend formatting and chart display
-```
+- Ledger: `l3iu2-tyaaa-aaaal-qxm4q-cai`
+- Soon market: `l4jso-6aaaa-aaaal-qxm4a-cai`
+- ICPSwap pool: `hcju7-naaaa-aaaar-qch3a-cai`
 
-The browser has no financial-data write endpoint and never supplies the mint, fee recipient, fee sources or historical prices to the build worker. The mint is validated as a Solana token mint. Failed, unfinalized, wrong-recipient and wrong-source fee transfers are excluded. Only the explicit public configuration allowlist is published; RPC and indexer endpoint secrets stay in Actions.
+The build queries the official read-only ICP ICRC API for holder data. If a token has not been indexed, holder totals and rankings remain unavailable. The dashboard does not estimate missing values.
 
-A visitor can always edit their own local DOM with browser tools. That does not change the authoritative published data or what anyone else sees. Protect repository access and the default branch to control who can configure the official site.
+## Data and deployment
 
-## Launch configuration
+`npm run build` creates the production `dist/data/snapshot.json`. `node scripts/test-token.mjs` creates the test snapshot. Both publish only allowlisted public configuration and metric fields.
 
-Edit `site/config.json`, or use these GitHub Actions values:
+GitHub Pages deploys from `site/dist`. The workflow validates JavaScript and tests before generating both snapshots. Market-price integration for the Soon curve and ICPSwap remains pending a documented public read interface; until then those metrics stay blank.
 
-| Type | Name | Purpose |
-| --- | --- | --- |
-| Repository variable | `TOKEN_CA` | Official Solana mint |
-| Repository variable | `FEE_RECIPIENT` | Designated fee recipient |
-| Repository variable | `FEE_SOURCES` | Comma-separated known fee-sending wallets or authorities |
-| Repository secret | `SOLANA_RPC_URL` | Production HTTPS Solana RPC endpoint |
-| Repository secret | `TOKEN_DATA_URL` | Optional normalized market/history/holders provider |
-| Repository secret | `FEE_INDEXER_URL` | Complete finalized fee-history provider |
-| Repository variable | `DISTRIBUTION_WALLET` | Official wallet that sends holder payouts |
-| Repository variable | `DISTRIBUTION_ASSET_MINT` | Payout mint, or `SOL` for native SOL |
-| Repository variable | `DISTRIBUTION_ASSET_SYMBOL` | Public payout ticker such as `USDC` |
-| Repository secret | `DISTRIBUTION_INDEXER_URL` | Complete finalized outgoing-transfer provider |
-
-The public Solana RPC endpoint is a development fallback and can throttle or reject requests. Use a reliable production RPC. Set official HTTPS buy, explorer and X links in `config.json`. Unconfigured actions explain availability. Announcement text and the fee-recipient display name are also configurable there. Never commit private provider credentials to config.
-
-After the mint is configured, DEX Screener supplies market price, market cap, liquidity, volume, buys and sells for the highest-liquidity base-token pool. Pool-specific metrics are labeled. FDV is never substituted for market cap. Holder counts, historical candles, 7D/30D returns and other unavailable metrics remain `—` until a normalized provider is connected. A missing source never turns into a made-up number.
-
-## Holder distributions
-
-The Fees tab tracks finalized outgoing payouts from one configured distribution wallet and one payout asset. It shows total historical USD value, 24-hour distributions, payout count, unique recipients, recent transfers and the Top 10 receivers by raw asset amount. Self-transfers, failed transactions, wrong senders, wrong mints, duplicates and future timestamps are excluded. USD totals use historical prices and are withheld when pricing is incomplete.
-
-The worker requests `DISTRIBUTION_INDEXER_URL?sender=<wallet>&mint=<mint>`. The response must contain the same `sender` and `mint`, `completeHistory: true`, `commitment: "finalized"`, and a `transfers` array. Each transfer contains `txHash`, `instructionIndex`, `timestamp`, `sender`, `recipient`, `mint`, `amount`, `finalized`, optional `failed`, `priceBasis`, and optional `historicalUsdPrice` and `historicalBtcUsdPrice`. BTC totals are calculated using the historical BTC/USD rate for each payout; they remain unavailable when that history is incomplete. Until the official wallet, asset and complete history provider are configured, the public section remains in an explicit pending state.
-
-## Fee accounting
-
-The fee provider in `backend/providers.js` is independent of the price provider. It filters successful finalized transfers by recipient, mint and known fee sources. Source addresses are necessary because a mint plus recipient alone cannot identify arbitrary inbound transfers as protocol fees. Changing the recipient starts accounting for that recipient only. Wallet ownership by Michael Saylor is not asserted.
-
-Amounts are separated by asset: the token, optional native SOL (`fee.includeNative`), and configured other assets (`fee.otherAssets`, each with `mint` and `symbol`). Transfer instructions are deduplicated, and transaction count counts unique signatures. USD value uses each transfer's historical price. If any qualifying transfer is unpriced, the lifetime USD total is withheld and raw asset amounts are shown. Spot prices never masquerade as historical values.
-
-The basic RPC fallback scans the recipient and currently open token accounts, paginates signatures, and inspects parsed outer/inner standard SPL-token transfer instructions. Closed historical token accounts and pruned history cannot be reliably recovered this way. Thus this fallback is explicitly partial and never displays a lifetime USD total. It has a defensive 20,000-signature limit per account. Large histories, full lifetime accounting, historical pricing and Token-2022 net received amounts require a trusted indexer. The site does not include a hosted indexing service.
-
-### Fee indexer contract
-
-The worker requests `FEE_INDEXER_URL?recipient=<wallet>&mint=<mint>`. The provider must account for all history, including closed token accounts, and verify actual finalized transfers. `completeHistory` must be true only after all history is accounted for. This is a trusted-provider boundary; merely setting a flag is not proof from an arbitrary API.
-
-```json
-{
-  "recipient": "configured recipient wallet",
-  "mint": "configured token mint",
-  "completeHistory": true,
-  "commitment": "finalized",
-  "transfers": [{
-    "txHash": "Solana signature",
-    "instructionIndex": 0,
-    "timestamp": 1800000000000,
-    "recipient": "configured recipient wallet",
-    "sender": "known fee source",
-    "mint": "asset mint, or SOL",
-    "amount": 10000,
-    "finalized": true,
-    "failed": false,
-    "priceBasis": "historical",
-    "historicalUsdPrice": 0.00004
-  }]
-}
-```
-
-This is a schema example, not live data. Timestamps use Unix milliseconds. Instruction indices uniquely identify outer and inner transfers within a transaction. Use net received amounts for transfer-fee tokens. Use `priceBasis: "unavailable"` and omit the historical price when unknown. A partial or invalid response produces an unavailable state, never a partial lifetime total.
-
-### Token provider contract
-
-The worker requests `TOKEN_DATA_URL?mint=<mint>`. Return the matching `mint` and numeric fields from `backend/types.d.ts`, plus a human-readable source. `history` contains `{timestamp, price, volume}` observations with millisecond timestamps and USD prices/volume. Omitted fields stay unknown. The frontend chart supports five time ranges, date/price/volume tooltips, keyboard inspection and responsive sizing.
-
-## Verification
-
-Accounting tests cover historical USD values, missing prices, duplicate instructions, multi-asset totals, rolling windows, changed recipients, source filtering, failed/unfinalized transactions, pre-launch states, mint validation and incomplete histories. The page is checked at desktop and mobile widths, in both themes, including theme persistence, navigation, chart-range controls and unconfigured links. Live-chain end-to-end validation requires the official mint, recipient, fee sources and provider configuration.
-
-### Solscan holders
-Set the GitHub Actions repository secret `SOLSCAN_API_KEY` to a Solscan Pro API key with access to `/v2.0/token/holders`. Both production and test builds read the key on the build worker only. The public snapshot contains only the reported aggregate count, source, status and timestamp; the key is excluded. Missing credentials or failed requests leave holder counts unknown while preserving DEX market data. Counts use Solscan data.total, not the length of its paginated list. This does not change the existing five-minute snapshot schedule. After adding the secret, run Publish InuStrategy manually to verify live access.
-
-### Free Pump.fun holder feed
-The configured holder provider is Helius. Add `HELIUS_API_KEY` as a GitHub Actions secret. The build paginates every nonzero token account for the configured mint, aggregates multiple token accounts by owner, and verifies each owner account on-chain. Executable accounts, program-owned accounts/PDAs, unresolved accounts, and burn addresses are excluded before the filtered holder count and top 10 are published. The key stays on the GitHub Actions worker and is never written to the public snapshot.
-
-If Helius is unavailable, the build falls back to the public `advanced-api-v2.pump.fun/coins/top-holders/{mint}` response. The fallback count is Pump.fun's aggregate `totalHolders`; its top list is still checked against on-chain account ownership. Because ownership metadata cannot prove a wallet belongs to a human, exchange and multisig wallets may remain in the list.
-
-### Free chart history
-GeckoTerminal candles are fetched on the existing five-minute build schedule. Short views (15M/1H/4H) use one-minute closes; 1D uses 15-minute closes; 7D/30D use hourly closes; 3M/ALL use daily closes (up to 180 available candles). ALL means available provider history, not guaranteed lifetime history. Pool selection validates base mint and chooses highest reported liquidity. Missing ranges stay empty and old snapshots are suppressed. The frontend checks snapshots every 30 seconds; this is not streaming.
-
-### Automatic market refresh (GitHub Pages)
-The static deployment uses the explicitly permitted browser-to-provider fallback: official DEX Screener requests start on DOM readiness and are scheduled with setInterval(update, 10000), with an eight-second timeout and overlap guard. Browsers can throttle background timers; this is not a guaranteed wall-clock SLA. Valid fields merge individually; missing/invalid fields and failed requests preserve prior numbers. The as-of timestamp remains visible. No API credentials are sent. Chart/holder snapshots remain backend-generated on GitHub Actions. Production mint is supplied by TOKEN_CA through the public snapshot. The site accepts no metric writes; browser-local DOM edits are not persisted or authoritative. A continuously running server would be required for shared server-side ten-second polling; GitHub Pages does not run such a process.
-
-The overview shows signed 24-hour dollar and percentage changes. Price and market-cap comparisons use DEX Screener's 24-hour price change. Liquidity and volume comparisons use an eight-day rolling metric history carried forward from the previously published snapshot. They remain explicitly unavailable until a valid observation approximately 24 hours old exists; the UI never fabricates a baseline.
+The site has no login, wallet connection, transaction signing, or financial-data write endpoint. It only presents read-only public data and links to the configured launchpad or explorer.

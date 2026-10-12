@@ -25,7 +25,7 @@ jobs:
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: '24'
-      - name: Validate frontend and accounting
+      - name: Validate frontend and ICP data adapter
         working-directory: site
         run: |
           npm run check
@@ -33,18 +33,9 @@ jobs:
       - name: Generate read-only blockchain snapshot
         working-directory: site
         env:
-          SOLSCAN_API_KEY: ${{ secrets.SOLSCAN_API_KEY }}
-          HELIUS_API_KEY: ${{ secrets.HELIUS_API_KEY }}
-          SOLANA_RPC_URL: ${{ secrets.SOLANA_RPC_URL }}
-          TOKEN_DATA_URL: ${{ secrets.TOKEN_DATA_URL }}
-          FEE_INDEXER_URL: ${{ secrets.FEE_INDEXER_URL }}
-          TOKEN_CA: ${{ vars.TOKEN_CA }}
-          FEE_RECIPIENT: ${{ vars.FEE_RECIPIENT }}
-          FEE_SOURCES: ${{ vars.FEE_SOURCES }}
-          DISTRIBUTION_WALLET: ${{ vars.DISTRIBUTION_WALLET }}
-          DISTRIBUTION_ASSET_MINT: ${{ vars.DISTRIBUTION_ASSET_MINT }}
-          DISTRIBUTION_ASSET_SYMBOL: ${{ vars.DISTRIBUTION_ASSET_SYMBOL }}
-          DISTRIBUTION_INDEXER_URL: ${{ secrets.DISTRIBUTION_INDEXER_URL }}
+          ICP_LEDGER_CANISTER_ID: ${{ vars.ICP_LEDGER_CANISTER_ID }}
+          ICP_MARKET_CANISTER_ID: ${{ vars.ICP_MARKET_CANISTER_ID }}
+          ICP_POOL_CANISTER_ID: ${{ vars.ICP_POOL_CANISTER_ID }}
         run: |
           npm run build
           node scripts/test-token.mjs
