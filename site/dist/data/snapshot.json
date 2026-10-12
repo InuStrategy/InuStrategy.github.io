@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-12T19:27:25.164Z",
+  "generatedAt": "2026-10-12T19:41:13.233Z",
   "config": {
     "name": "InuStrategy",
     "symbol": "INSTR",
@@ -42,6 +42,6 @@
     "historyByRange": {},
     "historySource": "",
     "source": "ICP network",
-    "updatedAt": 1791833245164
+    "updatedAt": 1791834073233
   }
 }

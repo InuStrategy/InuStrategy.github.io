@@ -1,22 +1,34 @@
-# While waiting for launch
+# ICP launch checklist
 
-- Confirm the official InuStrategy mint when issued; leave the production mint blank until then.
-- Review `/about.html` in dark and light mode. The supplied executive portrait and biography are presented as fictional parody.
-- Inspect `/test.html` for the user-supplied e/acc token. This page is explicitly separate from InuStrategy and never contributes fees to its totals.
-- Prepare the official X profile and buy URL.
-- Obtain a reliable Solana RPC and a provider for holders and historical candles. The current pair endpoint does not supply those fields.
-- Ask UsePaid for a supported, per-mint claims and payout API, including amounts, currencies, timestamps, recipient handles, payout status and receipt IDs. Do not send this request automatically.
-- Keep creator fees accrued, fees claimed, recipient share, and completed X Money payouts separate. A payment into UsePaid's treasury is not a payment to Michael Saylor.
-- Before launch, recheck UsePaid's payout availability and fee-routing requirements. On September 27, 2026 their site displayed an X Money payout pause.
+Production remains in prelaunch mode until the real InuStrategy identifiers are available. Do not copy the `$SOON` test identifiers into production.
 
-## Verified test findings
+## Required at launch
 
-Mint: `CbcyNo7m1amFWqEQm2m4PLv1UNvpcL3C1Ujm6AkzpKoU` (Effective Accelerationism / e/acc).
+Set these GitHub Actions repository variables:
 
-The existing backend returned price, market cap, liquidity, 24-hour volume, supply, buys and sells. Holders, historical candles and 7D/30D returns remain unavailable.
+- `ICP_LEDGER_CANISTER_ID`: InuStrategy ICRC ledger canister. This is the public token contract.
+- `ICP_MARKET_CANISTER_ID`: InuStrategy Soon market canister. This is the identifier in the Soon token-page URL.
+- `ICP_POOL_CANISTER_ID`: ICPSwap pool canister after graduation. Leave unset while the token is still on the Soon curve if no pool exists yet.
 
-UsePaid documents `GET https://usepaid.app/api/fee-proof?mint=<mint>`. The tested token returned HTTP 200 with `status: confirmed`, `verified: false`, and `proof: null`. This response does not establish payout completion. A supported complete payout-history API has not been established by this research.
+Update `site/config.json` links with:
 
-Sources: https://usepaid.app/docs and https://usepaid.app/ . These statements are dated findings, not a permanent claim about service availability.
+- `links.buy`: the official Soon token page before graduation, then the preferred ICPSwap swap URL after graduation.
+- `links.explorer`: the ICP Dashboard or ICExplorer page for the ledger canister.
+- `links.community`: the official community destination, if used.
 
-No cooldown automation is installed. This checklist is saved for the next working session.
+## Data routing
+
+- Soon market canister: launch phase, curve information, launch candles, and launch trades.
+- ICRC ledger canister: token identity and total supply.
+- ICPSwap public API: post-graduation price, liquidity, 24-hour volume, trades, and hourly candles.
+- ICRC account index or ICExplorer: holder count and ranked accounts when a complete index is available.
+
+The dashboard validates that the market canister reports the configured ledger and symbol, and that ICPSwap reports the configured pool and ledger. Missing or mismatched sources remain unavailable rather than falling back to estimated values.
+
+## Deployment verification
+
+1. Run `npm ci`, `npm test`, `npm run check`, and `git diff --check` from `site`.
+2. Run `npm run build` and `node scripts/test-token.mjs`.
+3. Confirm production remains prelaunch before the real variables are added.
+4. Confirm `index.html?mode=test` still shows the `$SOON` test snapshot.
+5. After configuring the real IDs, manually run `Publish InuStrategy` and verify the production snapshot before sharing the site.
