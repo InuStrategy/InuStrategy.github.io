@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-12T19:34:48.270Z",
+  "generatedAt": "2026-10-12T19:41:26.442Z",
   "config": {
     "name": "Soon",
     "symbol": "SOON",
@@ -20,24 +20,24 @@
   },
   "token": {
     "status": "live",
-    "price": 0.0002841111874174,
-    "priceChange24h": 183.86695683869752,
-    "return7d": 264.73475061593075,
-    "return30d": 264.73475061593075,
-    "marketCap": 147016.17495344474,
-    "liquidity": 66305.65623800068,
-    "volume24h": 128424.35810642099,
+    "price": 0.0002797795125961,
+    "priceChange24h": 181.88706304433455,
+    "return7d": 262.1908262459544,
+    "return30d": 262.1908262459544,
+    "marketCap": 144782.40043820636,
+    "liquidity": 66320.35385839378,
+    "volume24h": 128806.21030305485,
     "holders": null,
     "holdersSource": "ICP ICRC API",
     "holdersStatus": "indexing",
-    "holdersUpdatedAt": 1791833685959,
-    "totalSupply": 517459999.6918,
+    "holdersUpdatedAt": 1791834084656,
+    "totalSupply": 517487499.6913,
     "activity": {
       "buys": null,
       "sells": null
     },
     "metrics": {
-      "trades24h": 1927,
+      "trades24h": 1929,
       "totalCurveTrades": 203,
       "curveTraders": 55
     },
@@ -174,15 +174,15 @@
         "volume": 11574.052397852709
       },
       {
-        "timestamp": 1791833458000,
-        "price": 0.00028285956345535155,
-        "volume": 2215.9295218313505
+        "timestamp": 1791833924000,
+        "price": 0.0002808866959522145,
+        "volume": 2494.612937025281
       }
     ],
     "historyByRange": {},
     "historySource": "ICPSwap",
     "source": "ICPSwap public market API · Soon pool",
-    "updatedAt": 1791833688269,
+    "updatedAt": 1791834086442,
     "poolCanisterId": "hcju7-naaaa-aaaar-qch3a-cai",
     "launchPhase": "ICPSwap"
   }
