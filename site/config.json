@@ -4,10 +4,10 @@
   "announcement": {
     "text": "InuStrategy is committed to developing a world-class strategy for doing absolutely nothing."
   },
-  "chain": "solana",
-  "rpcUrl": "https://api.mainnet-beta.solana.com",
-  "tokenAddress": "",
-  "tokenDataUrl": "",
+  "chain": "icp",
+  "ledgerCanisterId": "",
+  "marketCanisterId": "",
+  "poolCanisterId": "",
   "pollIntervalMs": 30000,
   "links": {
     "buy": "",
@@ -16,26 +16,12 @@
     "youtube": "https://www.youtube.com/@InuStrategy",
     "community": ""
   },
-  "fee": {
-    "enabled": false,
-    "recipientAddress": "",
-    "recipientName": "",
-    "indexerUrl": "",
-    "sourceAddresses": [],
-    "otherAssets": [],
-    "includeNative": false,
-    "explorerAddressUrl": "",
-    "explorerTransactionUrl": "",
-    "displayLabel": ""
-  },
-  "distribution": {
-    "enabled": true,
-    "senderAddress": "",
-    "assetMint": "",
-    "assetSymbol": "USDC",
-    "indexerUrl": "",
-    "explorerAddressUrl": "",
-    "displayLabel": "Fees Distributed to Holders"
-  },
-  "holderProvider": "helius"
+  "testToken": {
+    "name": "Soon",
+    "symbol": "SOON",
+    "ledgerCanisterId": "l3iu2-tyaaa-aaaal-qxm4q-cai",
+    "marketCanisterId": "l4jso-6aaaa-aaaal-qxm4a-cai",
+    "poolCanisterId": "hcju7-naaaa-aaaar-qch3a-cai",
+    "launchpadUrl": "https://soonlaunchpad.fun/t/l4jso-6aaaa-aaaal-qxm4a-cai"
+  }
 }
